@@ -1,0 +1,83 @@
+# UE5 项目 .gitignore
+
+# ===== Visual Studio =====
+.vs/
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+.vsconfig
+
+# ===== Unreal Engine =====
+# 编译产物
+Binaries/
+Build/
+Intermediate/
+
+# 缓存文件
+DerivedDataCache/
+Saved/
+
+# 插件编译产物
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# ===== 打包输出 =====
+Package/
+
+# ===== C++ 编译 =====
+*.obj
+*.lib
+*.pdb
+*.idb
+*.ilk
+*.exp
+*.pch
+
+# ===== 日志 =====
+*.log
+
+# ===== 操作系统 =====
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ===== 编辑器临时文件 =====
+*.tmp
+*.temp
+*.swp
+*~
+
+# ===== 文档和学习资料（仅本地） =====
+docs/
+
+# ===== 不要忽略的重要文件 =====
+# 保留这些配置文件
+!Config/
+!Content/
+!Source/
+!*.uproject
+!*.uplugin
+!README.md
+!.gitignore
+!UEProjectClearUtil.bat
+
+# ===== Rider =====
+.idea/
+.idea_modules/
+
+# ===== 其他 =====
+*.VC.db
+*.opendb
+*.VC.VC.opendb
+
