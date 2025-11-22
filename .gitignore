@@ -72,6 +72,10 @@ docs/
 !.gitignore
 !UEProjectClearUtil.bat
 
+# ===== World Partition 外部文件（暂时忽略，不需要关卡保存） =====
+Content/__ExternalActors__/
+Content/__ExternalObjects__/
+
 # ===== Rider =====
 .idea/
 .idea_modules/

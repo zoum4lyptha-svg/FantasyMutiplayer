@@ -48,6 +48,13 @@ public:
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool GetIsOnGround() const { return !bIsJumping; }
 
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetLookYawOffset() const { return LookRotOffset.Yaw; }
+
+	//todo: 这里其实有BUG,在多人网络时，GetBaseAimRotation 这个接口拿到的引擎管线的pitch存在着不支持同步的问题
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetLookPitchOffset() const { return LookRotOffset.Pitch; }
+
 
 private:
 	UPROPERTY()
@@ -64,6 +71,8 @@ private:
 	float YawSpeed;
 
 	bool bIsJumping;
+
+	FRotator LookRotOffset;
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	float YawSpeedSmoothLerpSpeed = 1.f;

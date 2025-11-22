@@ -32,6 +32,11 @@ void UGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		YawSpeed = BodyRotDelta.Yaw / DeltaSeconds;
 		SmoothedYawSpeed = UKismetMathLibrary::FInterpTo(SmoothedYawSpeed, YawSpeed, DeltaSeconds, YawSpeedSmoothLerpSpeed);
+		
+		FRotator ControlRot = OwnerCharacter->GetBaseAimRotation();
+		// 算相机朝向和人体朝向的Delta
+		LookRotOffset = UKismetMathLibrary::NormalizedDeltaRotator(ControlRot, BodyRot);
+
 	}
 
 	if (OwnerMovementComp)
