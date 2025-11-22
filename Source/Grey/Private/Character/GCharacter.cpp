@@ -28,7 +28,10 @@ void AGCharacter::ServerSideInit()
 
 void AGCharacter::ClientSideInit()
 {
+	//客户端InitAbility的顺序需要在服务器确认后，否则很容易有问题
 	GAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	// 客户端不会应用GE,客户端的GE来源于服务器的同步
+	
 }
 
 
