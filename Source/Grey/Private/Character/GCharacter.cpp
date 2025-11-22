@@ -3,6 +3,9 @@
 
 #include "Character/GCharacter.h"
 
+#include "GAS/GAbilitySystemComponent.h"
+#include "GAS/GAttributeSet.h"
+
 #include "Components/SkeletalMeshComponent.h"
 
 
@@ -12,7 +15,20 @@ AGCharacter::AGCharacter()
 
 	//把mesh的碰撞关了
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	GAbilitySystemComponent = CreateDefaultSubobject<UGAbilitySystemComponent>("GAbility System Component");
+	GAttributeSet = CreateDefaultSubobject<UGAttributeSet>("GAttribute Set");
+}
 
+void AGCharacter::ServerSideInit()
+{
+	GAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	GAbilitySystemComponent->ApplyInitialEffects();
+}
+
+void AGCharacter::ClientSideInit()
+{
+	GAbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
 
@@ -34,5 +50,10 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+UAbilitySystemComponent* AGCharacter::GetAbilitySystemComponent() const
+{
+	return GAbilitySystemComponent;
 }
 
