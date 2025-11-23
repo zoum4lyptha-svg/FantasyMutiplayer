@@ -16,6 +16,26 @@ void UGAbilitySystemComponent::ApplyInitialEffects()
 	}
 }
 
+void UGAbilitySystemComponent::GiveInitialAbilities()
+{
+
+	// 服务器才能注册 GA
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+		return;
+
+	// 注册游戏开始时还没有学会的GA
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : Abilities)
+	{
+		GiveAbility(FGameplayAbilitySpec(AbilityClass, 0, -1, nullptr));
+	}
+
+	// 注册基础就有的GA
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : BasicAbilities)
+	{
+		GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, -1, nullptr));
+	}
+}
+
 
 UGAbilitySystemComponent::UGAbilitySystemComponent()
 {

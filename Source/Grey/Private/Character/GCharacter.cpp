@@ -30,7 +30,8 @@ AGCharacter::AGCharacter()
 void AGCharacter::ServerSideInit()
 {
 	GAbilitySystemComponent->InitAbilityActorInfo(this, this);
-	GAbilitySystemComponent->ApplyInitialEffects();
+	GAbilitySystemComponent->ApplyInitialEffects();  
+	GAbilitySystemComponent->GiveInitialAbilities();
 }
 
 void AGCharacter::ClientSideInit()
