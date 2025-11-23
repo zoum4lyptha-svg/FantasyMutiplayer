@@ -3,8 +3,11 @@
 
 #include "Character/GCharacter.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "GAS/GAbilitySystemComponent.h"
 #include "GAS/GAttributeSet.h"
+#include "Components/WidgetComponent.h"
+#include "Widgets/OverHeadStatsGauge.h"
 
 #include "Components/SkeletalMeshComponent.h"
 
@@ -18,6 +21,9 @@ AGCharacter::AGCharacter()
 	
 	GAbilitySystemComponent = CreateDefaultSubobject<UGAbilitySystemComponent>("GAbility System Component");
 	GAttributeSet = CreateDefaultSubobject<UGAttributeSet>("GAttribute Set");
+
+	OverHeadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Over Head Widget Component");
+	OverHeadWidgetComponent->SetupAttachment(GetRootComponent());
 }
 
 void AGCharacter::ServerSideInit()
@@ -34,11 +40,28 @@ void AGCharacter::ClientSideInit()
 	
 }
 
+bool AGCharacter::IsLocallyControlledByPlayer() const
+{
+	
+	return GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_AutonomousProxy;
+	
+}
+
 
 void AGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	ConfigureOverHeadStatusWidget();
+}
+
+void AGCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (NewController && !NewController->IsPlayerController())
+	{
+		ServerSideInit();
+	}
 }
 
 
@@ -58,5 +81,44 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 UAbilitySystemComponent* AGCharacter::GetAbilitySystemComponent() const
 {
 	return GAbilitySystemComponent;
+}
+
+void AGCharacter::ConfigureOverHeadStatusWidget()
+{
+	if (!OverHeadWidgetComponent)
+	{
+		return;
+	}
+
+	IsPlayerControlled();
+
+	if (IsLocallyControlledByPlayer())
+	{
+		OverHeadWidgetComponent->SetHiddenInGame(true);
+
+
+		return;
+	}
+
+
+	UOverHeadStatsGauge* OverheadStatsGuage = Cast<UOverHeadStatsGauge>(OverHeadWidgetComponent->GetUserWidgetObject());
+	if (OverheadStatsGuage)
+	{
+		OverheadStatsGuage->ConfigureWithASC(GetAbilitySystemComponent());
+		OverHeadWidgetComponent->SetHiddenInGame(false);
+
+		GetWorldTimerManager().ClearTimer(HeadStatGaugeVisibilityUpdateTimerHandle);
+		GetWorldTimerManager().SetTimer(HeadStatGaugeVisibilityUpdateTimerHandle, this, &AGCharacter::UpdateHeadGaugeVisibility, HeadStatGaugeVisiblityCheckUpdateGap, true);
+	}
+}
+
+void AGCharacter::UpdateHeadGaugeVisibility()
+{
+	APawn* LocalPlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (LocalPlayerPawn)
+	{
+		float DistSquared = FVector::DistSquared(GetActorLocation(), LocalPlayerPawn->GetActorLocation());
+		OverHeadWidgetComponent->SetHiddenInGame(DistSquared > HeadStatGaugeVisiblityRangeSquared);
+	}
 }
 

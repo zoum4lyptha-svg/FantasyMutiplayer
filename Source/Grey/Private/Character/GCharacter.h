@@ -19,10 +19,12 @@ public:
 
 	void ServerSideInit();
 	void ClientSideInit();
+	bool IsLocallyControlledByPlayer() const;
 	
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
 
 public:	
 
@@ -44,5 +46,24 @@ private:
 	
 	UPROPERTY()
 	class UGAttributeSet* GAttributeSet;
+
+	/**********************************************************************/
+	/*                              UI                                    */
+	/**********************************************************************/
+private:
+	UPROPERTY(VisibleDefaultsOnly, Category = "UI")
+	class UWidgetComponent* OverHeadWidgetComponent;
+	
+	void ConfigureOverHeadStatusWidget();
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	float HeadStatGaugeVisiblityCheckUpdateGap = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	float HeadStatGaugeVisiblityRangeSquared = 10000000.f;
+	
+	FTimerHandle HeadStatGaugeVisibilityUpdateTimerHandle;
+
+	void UpdateHeadGaugeVisibility();
 
 };
