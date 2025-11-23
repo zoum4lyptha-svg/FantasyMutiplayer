@@ -23,6 +23,7 @@ AGCharacter::AGCharacter()
 	GAttributeSet = CreateDefaultSubobject<UGAttributeSet>("GAttribute Set");
 
 	OverHeadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Over Head Widget Component");
+	// 头部血量组件必须要有 transform 的
 	OverHeadWidgetComponent->SetupAttachment(GetRootComponent());
 }
 
@@ -42,7 +43,7 @@ void AGCharacter::ClientSideInit()
 
 bool AGCharacter::IsLocallyControlledByPlayer() const
 {
-	
+	// 客户端的主控 或 服务器上的客户端主控
 	return GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_AutonomousProxy;
 	
 }
@@ -52,12 +53,14 @@ void AGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 头部组件初始化逻辑是所有 Clients（包括主控，和 模拟 都要走到的）
 	ConfigureOverHeadStatusWidget();
 }
 
 void AGCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	// 存在AController 但是不是玩家控制器时 服务器初始化 AI 的 info
 	if (NewController && !NewController->IsPlayerController())
 	{
 		ServerSideInit();
@@ -92,6 +95,7 @@ void AGCharacter::ConfigureOverHeadStatusWidget()
 
 	IsPlayerControlled();
 
+	// 玩家自己不显示 头部血量 
 	if (IsLocallyControlledByPlayer())
 	{
 		OverHeadWidgetComponent->SetHiddenInGame(true);
@@ -108,6 +112,7 @@ void AGCharacter::ConfigureOverHeadStatusWidget()
 		OverHeadWidgetComponent->SetHiddenInGame(false);
 
 		GetWorldTimerManager().ClearTimer(HeadStatGaugeVisibilityUpdateTimerHandle);
+		// 这里开一个循环计时器代替tick，重复检查组件当前距离是否应该可见
 		GetWorldTimerManager().SetTimer(HeadStatGaugeVisibilityUpdateTimerHandle, this, &AGCharacter::UpdateHeadGaugeVisibility, HeadStatGaugeVisiblityCheckUpdateGap, true);
 	}
 }
@@ -117,6 +122,7 @@ void AGCharacter::UpdateHeadGaugeVisibility()
 	APawn* LocalPlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
 	if (LocalPlayerPawn)
 	{
+		// 比较平方是为了防负数
 		float DistSquared = FVector::DistSquared(GetActorLocation(), LocalPlayerPawn->GetActorLocation());
 		OverHeadWidgetComponent->SetHiddenInGame(DistSquared > HeadStatGaugeVisiblityRangeSquared);
 	}

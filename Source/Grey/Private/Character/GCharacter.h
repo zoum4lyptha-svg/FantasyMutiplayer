@@ -24,6 +24,7 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	// PossessedBy在当前 Controller被占用时触发(只在服务器触发)
 	virtual void PossessedBy(AController* NewController) override;
 
 public:	
