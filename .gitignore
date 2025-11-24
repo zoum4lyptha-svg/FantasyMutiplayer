@@ -85,3 +85,12 @@ Content/__ExternalObjects__/
 *.opendb
 *.VC.VC.opendb
 
+/Plugins/Developer
+/Content/__ExternalActors__
+/Content/__ExternalActors__
+Content/NewMap.umap
+Content/NewMap1.umap
+Content/testMap.umap
+Content/testMap_HLOD0_Instancing.uasset
+REBASE_INSTRUCTIONS.md
+Content/NewMap.umap
