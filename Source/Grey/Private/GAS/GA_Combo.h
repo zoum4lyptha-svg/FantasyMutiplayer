@@ -22,6 +22,7 @@ public:
 	// 监听 ability.combo.change的 01,02,03 etc.
 	static FGameplayTag GetComboChangedEventTag();
 	static FGameplayTag GetComboChangedEventEndTag();
+	static FGameplayTag GetComboTargetEventTag();
 private:
 
 	
@@ -31,6 +32,14 @@ private:
 	void HandleInputPress(float TimeWaited);
 
 	void TryCommitCombo();
+
+	// GE_Combo （主要是伤害）
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effect")
+	TSubclassOf<UGameplayEffect> DefaultDamageEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effect")
+	TMap<FName, TSubclassOf<UGameplayEffect>> DamageEffectMap;
+
+	TSubclassOf<UGameplayEffect> GetDamageEffectForCurrentCombo() const;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* ComboMontage;
@@ -38,6 +47,9 @@ private:
 	UFUNCTION()
 	void ComboChangedEventReceived(FGameplayEventData Data);
 
+	UFUNCTION()
+	void DoDamage(FGameplayEventData Data);
+	
 	FName NextComboName;
 
 };

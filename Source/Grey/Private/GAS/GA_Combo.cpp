@@ -2,6 +2,8 @@
 
 
 #include "GA_Combo.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -46,6 +48,14 @@ void UGA_Combo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 		WaitComboChangeEventTask->ReadyForActivation();
 	}
 
+	if (K2_HasAuthority())
+	{
+		// 注意，我们只在服务器上创建伤害监听的task
+		UAbilityTask_WaitGameplayEvent* WaitTargetingEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, GetComboTargetEventTag());
+		WaitTargetingEventTask->EventReceived.AddDynamic(this, &UGA_Combo::DoDamage);
+		WaitTargetingEventTask->ReadyForActivation();
+	}
+
 	// 创建监听能力input的 task ,根据 nextComboName 设置
 	SetupWaitComboInputPress();
 }
@@ -58,6 +68,11 @@ FGameplayTag UGA_Combo::GetComboChangedEventTag()
 FGameplayTag UGA_Combo::GetComboChangedEventEndTag()
 {
 	return FGameplayTag::RequestGameplayTag("ability.combo.change.end");
+}
+
+FGameplayTag UGA_Combo::GetComboTargetEventTag()
+{
+	return FGameplayTag::RequestGameplayTag("ability.combo.damage");
 }
 
 void UGA_Combo::SetupWaitComboInputPress()
@@ -93,6 +108,22 @@ void UGA_Combo::TryCommitCombo()
 	OwnerAnimInst->Montage_SetNextSection(OwnerAnimInst->Montage_GetCurrentSection(ComboMontage), NextComboName, ComboMontage);
 }
 
+TSubclassOf<UGameplayEffect> UGA_Combo::GetDamageEffectForCurrentCombo() const
+{
+	UAnimInstance* OwnerAnimInstance = GetOwnerAnimInstance();
+	if (OwnerAnimInstance)
+	{
+		FName CurrentSectionName = OwnerAnimInstance->Montage_GetCurrentSection(ComboMontage);
+		const TSubclassOf<UGameplayEffect>* FoundEffectPtr = DamageEffectMap.Find(CurrentSectionName);
+		if (FoundEffectPtr)
+		{
+			return *FoundEffectPtr;
+		}
+	}
+
+	return DefaultDamageEffect;
+}
+
 void UGA_Combo::ComboChangedEventReceived(FGameplayEventData Data)
 {
 	// 根据末尾字段设置 next combo name
@@ -111,4 +142,20 @@ void UGA_Combo::ComboChangedEventReceived(FGameplayEventData Data)
 
 	UE_LOG(LogTemp, Warning, TEXT("next combo is now: %s"), *NextComboName.ToString());
 	
+}
+
+void UGA_Combo::DoDamage(FGameplayEventData Data)
+{
+	// 根据扫描计算轨迹碰撞
+	TArray<FHitResult> HitResults = GetHitResultFromSweepLocationTargetData(Data.TargetData, 30.f, true, true);
+
+	for (const FHitResult& HitResult : HitResults)
+	{
+		// 找和GE tag匹配的GE
+		TSubclassOf<UGameplayEffect> GameplayEffect = GetDamageEffectForCurrentCombo();
+		FGameplayEffectSpecHandle EfffectSpecHandle = MakeOutgoingGameplayEffectSpec(GameplayEffect, GetAbilityLevel(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));
+
+		//向碰撞对象应用GE
+		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), CurrentActorInfo, CurrentActivationInfo, EfffectSpecHandle, UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor()));
+	}
 }
