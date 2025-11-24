@@ -2,3 +2,15 @@
 
 
 #include "GGameplayAbility.h"
+#include "Components/SkeletalMeshComponent.h"
+
+class UAnimInstance* UGGameplayAbility::GetOwnerAnimInstance() const
+{
+	USkeletalMeshComponent* OwnerSkeletalMeshComp = GetOwningComponentFromActorInfo();
+	if (OwnerSkeletalMeshComp)
+	{
+		return OwnerSkeletalMeshComp->GetAnimInstance();
+	}
+	return nullptr;
+}
+

@@ -13,4 +13,7 @@ UCLASS()
 class GREY_API UGGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
+	//主要为GA子类提供一些方法
+protected:
+	class UAnimInstance* GetOwnerAnimInstance() const;
 };

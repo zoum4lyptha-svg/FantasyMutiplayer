@@ -73,11 +73,8 @@ void AGPlayerCharacter::HandleLookInput(const FInputActionValue& InputActionValu
 	FVector2D InputVal = InputActionValue.Get<FVector2D>();
 
 	// 视角移动
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		AddControllerPitchInput(-InputVal.Y);
-		AddControllerYawInput(InputVal.X);
-	}
+	AddControllerPitchInput(-InputVal.Y);
+	AddControllerYawInput(InputVal.X);
 }
 
 
