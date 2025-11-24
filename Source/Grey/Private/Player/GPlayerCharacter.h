@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/GCharacter.h"
+#include "GAS/GGameplayAbilityTypes.h"
 #include "InputActionValue.h"
 #include "GPlayerCharacter.generated.h"
 
@@ -27,12 +28,24 @@ public:
 
 private:
 
-	//3C组件
+	/*************************************************************/
+	/*                         3C -- 相机                         */
+	/*************************************************************/
 	UPROPERTY(VisibleDefaultsOnly, Category = "View")
 	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "View")
 	class UCameraComponent* ViewCam;
+
+	// 获取右方向，前方向，移动方向（不含Z轴）
+	FVector GetLookRightDir() const;
+	FVector GetLookFwdDir() const;
+	FVector GetMoveFwdDir() const;
+
+	/*************************************************************/
+	/*                           Input                           */
+	/*************************************************************/
+private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* JumpInputAction;
@@ -46,12 +59,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* GameplayInputMappingContext;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TMap<EGAbilityInputID, class UInputAction*> GameplayAbilityInputActions;
+
 	void HandleLookInput(const FInputActionValue& InputActionValue);
 	
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
 
-	// 获取右方向，前方向，移动方向（不含Z轴）
-	FVector GetLookRightDir() const;
-	FVector GetLookFwdDir() const;
-	FVector GetMoveFwdDir() const;
+	void HandleAbilityInput(const FInputActionValue& InputActionValue, EGAbilityInputID InputID);
 };

@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-
+#include "GAS/GGameplayAbilityTypes.h"
 #include "GAbilitySystemComponent.generated.h"
 
 
@@ -22,12 +22,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
 	TArray<TSubclassOf<UGameplayEffect>> InitialEffects;
 
-	// 配置需要注册的GA
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilitys")
-	TArray<TSubclassOf<UGameplayAbility>> Abilities;
+	// 配置需要注册的GA 
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
+	TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>> Abilities;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilitys")
-	TArray<TSubclassOf<UGameplayAbility>> BasicAbilities;
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
+	TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>> BasicAbilities;
 
 public:
 	

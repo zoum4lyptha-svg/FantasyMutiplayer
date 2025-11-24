@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
-
+#include "GAS/GGameplayAbilityTypes.h"
 #include "GCharacter.generated.h"
 
 UCLASS()

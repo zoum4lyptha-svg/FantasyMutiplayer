@@ -24,15 +24,15 @@ void UGAbilitySystemComponent::GiveInitialAbilities()
 		return;
 
 	// 注册游戏开始时还没有学会的GA
-	for (const TSubclassOf<UGameplayAbility>& AbilityClass : Abilities)
+	for (const TPair<EGAbilityInputID,TSubclassOf<UGameplayAbility>>& AbilityPair : Abilities)
 	{
-		GiveAbility(FGameplayAbilitySpec(AbilityClass, 0, -1, nullptr));
+		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 0, (int32)AbilityPair.Key, nullptr));
 	}
 
 	// 注册基础就有的GA
-	for (const TSubclassOf<UGameplayAbility>& AbilityClass : BasicAbilities)
+	for (const TPair<EGAbilityInputID,TSubclassOf<UGameplayAbility>>& AbilityPair : BasicAbilities)
 	{
-		GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, -1, nullptr));
+		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 1, (int32)AbilityPair.Key, nullptr));
 	}
 }
 

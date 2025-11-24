@@ -2,7 +2,7 @@
 
 
 #include "Player/GPlayerCharacter.h"
-
+#include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -57,6 +57,13 @@ void AGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComp->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &AGPlayerCharacter::Jump);
 		EnhancedInputComp->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &AGPlayerCharacter::HandleLookInput);
 		EnhancedInputComp->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &AGPlayerCharacter::HandleMoveInput);
+		for (const TPair<EGAbilityInputID, UInputAction*>& InputActionPair : GameplayAbilityInputActions)
+		{
+			// 这里给委托多荷载了一个inputID
+			EnhancedInputComp->BindAction(InputActionPair.Value, ETriggerEvent::Triggered, this, &AGPlayerCharacter::HandleAbilityInput, InputActionPair.Key);
+		}
+
+
 	}
 }
 
@@ -84,6 +91,21 @@ void AGPlayerCharacter::HandleMoveInput(const FInputActionValue& InputActionValu
 	// 移动方向 = 前方向 * 输入 + 右方向 * 输入
 	// 这个是适合俯视角的移动方向
 	AddMovementInput(GetMoveFwdDir()*InputVal.Y + GetLookRightDir() * InputVal.X);
+}
+
+void AGPlayerCharacter::HandleAbilityInput(const FInputActionValue& InputActionValue, EGAbilityInputID InputID)
+{
+	bool bPressed = InputActionValue.Get<bool>();
+	if (bPressed)
+	{
+		// 绑定触发输入到 inputID
+		GetAbilitySystemComponent()->AbilityLocalInputPressed((int32)InputID);
+	}
+	else
+	{
+		GetAbilitySystemComponent()->AbilityLocalInputReleased((int32)InputID);
+	}
+	
 }
 
 FVector AGPlayerCharacter::GetLookRightDir() const
