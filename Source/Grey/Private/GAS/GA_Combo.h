@@ -32,10 +32,10 @@ private:
 	void HandleInputPress(float TimeWaited);
 
 	void TryCommitCombo();
-
-	// GE_Combo （主要是伤害）
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effect")
 	TSubclassOf<UGameplayEffect> DefaultDamageEffect;
+	// 拓展 用 map 配表保存 伤害类型tag - GE 的映射
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effect")
 	TMap<FName, TSubclassOf<UGameplayEffect>> DamageEffectMap;
 

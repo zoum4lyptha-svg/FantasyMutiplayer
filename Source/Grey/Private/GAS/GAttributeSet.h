@@ -29,6 +29,14 @@ public:
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, Mana)
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, MaxMana)
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
+
+
+
+	// 注意:走 execution 而不是 MMC 的修改是不会调 PreAttributeChange的，
+	// 需要PostGameplayEffectExecute兜底
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;

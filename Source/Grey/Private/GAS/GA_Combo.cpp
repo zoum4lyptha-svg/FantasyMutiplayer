@@ -121,6 +121,7 @@ TSubclassOf<UGameplayEffect> UGA_Combo::GetDamageEffectForCurrentCombo() const
 		}
 	}
 
+	// 兜底 走默认GE
 	return DefaultDamageEffect;
 }
 
@@ -151,7 +152,7 @@ void UGA_Combo::DoDamage(FGameplayEventData Data)
 
 	for (const FHitResult& HitResult : HitResults)
 	{
-		// 找和GE tag匹配的GE
+		// 找和 GE tag匹配的GE
 		TSubclassOf<UGameplayEffect> GameplayEffect = GetDamageEffectForCurrentCombo();
 		FGameplayEffectSpecHandle EfffectSpecHandle = MakeOutgoingGameplayEffectSpec(GameplayEffect, GetAbilityLevel(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));
 
