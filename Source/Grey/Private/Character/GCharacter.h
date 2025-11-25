@@ -79,9 +79,19 @@ private:
 	/**********************************************************************/
 private:
 
+	FTransform MeshRelativeTransform;
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	float DeathMontageFinishTimeShift = -0.8f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
 	UAnimMontage* DeathMontage;
 
+	FTimerHandle DeathMontageTimerHandle;
+
+	void DeathMontageFinished();
+	void SetRagdollEnabled(bool bIsEnabled);
+
+	
 	void PlayDeathAnimation();
 	void StartDeathSequence();
 

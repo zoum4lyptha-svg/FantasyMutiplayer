@@ -62,6 +62,8 @@ void AGCharacter::BeginPlay()
 
 	// 头部组件初始化逻辑是所有 Clients（包括主控，和 模拟 都要走到的）
 	ConfigureOverHeadStatusWidget();
+
+	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
 }
 
 void AGCharacter::PossessedBy(AController* NewController)
@@ -170,11 +172,35 @@ void AGCharacter::SetStatusGaugeEnabled(bool bIsEnabled)
 	}
 }
 
+void AGCharacter::DeathMontageFinished()
+{
+	SetRagdollEnabled(true);
+}
+
+void AGCharacter::SetRagdollEnabled(bool bIsEnabled)
+{
+	if (bIsEnabled)
+	{
+		GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	}
+	else
+	{
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		GetMesh()->SetRelativeTransform(MeshRelativeTransform);
+	}
+}
+
 void AGCharacter::PlayDeathAnimation()
 {
 	if (DeathMontage)
 	{
-		PlayAnimMontage(DeathMontage);
+		float MontageDuration = PlayAnimMontage(DeathMontage);
+		// 不要等动画播完了躺地上再打开布娃娃，不然效果很鬼畜,反复蹦迪.jpg
+		GetWorldTimerManager().SetTimer(DeathMontageTimerHandle, this, &AGCharacter::DeathMontageFinished, MontageDuration + DeathMontageFinishTimeShift);
 	}
 
 }
@@ -193,6 +219,8 @@ void AGCharacter::StartDeathSequence()
 void AGCharacter::Respawn()
 {
 	OnRespawn();
+	// debug: 重生时别忘了关了布娃娃
+	SetRagdollEnabled(false);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
