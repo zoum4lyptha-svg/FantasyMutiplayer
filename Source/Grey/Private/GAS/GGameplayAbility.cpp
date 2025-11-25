@@ -16,12 +16,15 @@ class UAnimInstance* UGGameplayAbility::GetOwnerAnimInstance() const
 }
 
 TArray<FHitResult> UGGameplayAbility::GetHitResultFromSweepLocationTargetData(
-	const FGameplayAbilityTargetDataHandle& TargetDataHandle, float SphereSweepRadius, bool bDrawDebug,
-	bool bIgnoreSelf) const
+const FGameplayAbilityTargetDataHandle& TargetDataHandle, float SphereSweepRadius, ETeamAttitude::Type TargetTeam,
+bool bDrawDebug, bool bIgnoreSelf) const
 {
 	TArray<FHitResult> OutResults;
 	TSet<AActor*> HitActors;
 
+	IGenericTeamAgentInterface* OwnerTeamInterface = Cast<IGenericTeamAgentInterface>(GetAvatarActorFromActorInfo());
+
+	
 	for (const TSharedPtr<FGameplayAbilityTargetData> TargetData : TargetDataHandle.Data)
 	{
 		// 翻源码，这里语法挺神的
@@ -48,6 +51,16 @@ TArray<FHitResult> UGGameplayAbility::GetHitResultFromSweepLocationTargetData(
 			if (HitActors.Contains(Result.GetActor()))
 			{
 				continue;
+			}
+
+			//内部接口，对比 teamID，相同则是友方，跳过添加hit
+			if (OwnerTeamInterface)
+			{
+				ETeamAttitude::Type OtherActorTeamAttitude = OwnerTeamInterface->GetTeamAttitudeTowards(*Result.GetActor());
+				if (OtherActorTeamAttitude != TargetTeam)
+				{
+					continue;
+				}
 			}
 
 			HitActors.Add(Result.GetActor());
