@@ -32,6 +32,10 @@ private:
 	void HandleInputPress(float TimeWaited);
 
 	void TryCommitCombo();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Target")
+	float TargetSweepSphereRadius = 30.f;
+
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effect")
 	TSubclassOf<UGameplayEffect> DefaultDamageEffect;
