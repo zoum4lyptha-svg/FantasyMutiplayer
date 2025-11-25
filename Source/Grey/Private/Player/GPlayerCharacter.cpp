@@ -105,6 +105,24 @@ void AGPlayerCharacter::HandleAbilityInput(const FInputActionValue& InputActionV
 	
 }
 
+void AGPlayerCharacter::OnDead()
+{
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		DisableInput(PlayerController);
+	}
+}
+
+void AGPlayerCharacter::OnRespawn()
+{
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		EnableInput(PlayerController);
+	}
+}
+
 FVector AGPlayerCharacter::GetLookRightDir() const
 {
 	return ViewCam->GetRightVector();

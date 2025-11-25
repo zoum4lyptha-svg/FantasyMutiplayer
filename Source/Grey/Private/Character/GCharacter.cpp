@@ -7,6 +7,8 @@
 #include "GAS/GAbilitySystemComponent.h"
 #include "GAS/GAttributeSet.h"
 #include "GAS/GAbilitySystemStatics.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/OverHeadStatsGauge.h"
 
@@ -154,13 +156,59 @@ void AGCharacter::UpdateHeadGaugeVisibility()
 	}
 }
 
+// 把血条关了
+void AGCharacter::SetStatusGaugeEnabled(bool bIsEnabled)
+{
+	GetWorldTimerManager().ClearTimer(HeadStatGaugeVisibilityUpdateTimerHandle);
+	if (bIsEnabled)
+	{
+		ConfigureOverHeadStatusWidget();
+	}
+	else
+	{
+		OverHeadWidgetComponent->SetHiddenInGame(true);
+	}
+}
+
+void AGCharacter::PlayDeathAnimation()
+{
+	if (DeathMontage)
+	{
+		PlayAnimMontage(DeathMontage);
+	}
+
+}
+
 void AGCharacter::StartDeathSequence()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Dead"));
+	// 执行自定义死亡事件（如果是 AI可以在这里关闭行为）--hide角色--禁止PC输入--关闭碰撞
+	OnDead();
+	PlayDeathAnimation();
+	SetStatusGaugeEnabled(false);
+
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AGCharacter::Respawn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Respawn"));
+	OnRespawn();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
+	SetStatusGaugeEnabled(true);
+
+	if (GAbilitySystemComponent)
+	{
+		GAbilitySystemComponent->ApplyFullStatEffect();
+	}
+}
+
+void AGCharacter::OnDead()
+{
+}
+
+void AGCharacter::OnRespawn()
+{
 }
 

@@ -36,6 +36,21 @@ void UGAbilitySystemComponent::GiveInitialAbilities()
 	}
 }
 
+void UGAbilitySystemComponent::ApplyFullStatEffect()
+{
+	// 服务器应用重生GE
+	AuthApplyGameplayEffect(FullStatEffect);
+}
+
+void UGAbilitySystemComponent::AuthApplyGameplayEffect(TSubclassOf<UGameplayEffect> GameplayEffect, int Level)
+{
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(GameplayEffect, Level, MakeEffectContext());
+		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
+}
+
 void UGAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& ChangeData)
 {
 	if (!GetOwner()) return;
@@ -43,8 +58,7 @@ void UGAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& Chang
 	if (ChangeData.NewValue <= 0 && GetOwner()->HasAuthority() && DeathEffect)
 	{
 		//在服务器应用死亡GE
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(DeathEffect, 1, MakeEffectContext());
-		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		AuthApplyGameplayEffect(DeathEffect);
 	}
 }
 

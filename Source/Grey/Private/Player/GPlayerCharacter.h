@@ -67,4 +67,14 @@ private:
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
 
 	void HandleAbilityInput(const FInputActionValue& InputActionValue, EGAbilityInputID InputID);
+	/*************************************************************/
+	/*                      Death and Respawn                    */
+	/*************************************************************/
+
+	//自定义死亡重生逻辑
+	virtual void OnDead() override;
+	virtual void OnRespawn() override;
+
+
+
 };

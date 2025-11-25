@@ -44,6 +44,7 @@ public:
 private:
 
 
+	// 这里实现角色组件监听所有GAS相关的tag的接口 
 	void BindGASChangeDelegates();
 	void DeathTagUpdated(const FGameplayTag Tag, int32 NewCount);
 	
@@ -71,11 +72,23 @@ private:
 	FTimerHandle HeadStatGaugeVisibilityUpdateTimerHandle;
 
 	void UpdateHeadGaugeVisibility();
-	
+
+	void SetStatusGaugeEnabled(bool bIsEnabled);
 	/**********************************************************************/
 	/*                             Death and Respawn                      */
 	/**********************************************************************/
 private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	UAnimMontage* DeathMontage;
+
+	void PlayDeathAnimation();
 	void StartDeathSequence();
+
+	
 	void Respawn();
+
+	// 角色写个兜底的基类 死亡/重生
+	virtual void OnDead();
+	virtual void OnRespawn();
 };
