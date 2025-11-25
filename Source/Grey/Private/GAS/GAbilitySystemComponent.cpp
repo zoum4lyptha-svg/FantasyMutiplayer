@@ -1,6 +1,6 @@
 ﻿
 #include "GAbilitySystemComponent.h"
-
+#include "GAS/GAttributeSet.h"
 
 void UGAbilitySystemComponent::ApplyInitialEffects()
 {
@@ -36,12 +36,25 @@ void UGAbilitySystemComponent::GiveInitialAbilities()
 	}
 }
 
+void UGAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& ChangeData)
+{
+	if (!GetOwner()) return;
+
+	if (ChangeData.NewValue <= 0 && GetOwner()->HasAuthority() && DeathEffect)
+	{
+		//在服务器应用死亡GE
+		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(DeathEffect, 1, MakeEffectContext());
+		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
+}
+
 
 UGAbilitySystemComponent::UGAbilitySystemComponent()
 {
 
 	PrimaryComponentTick.bCanEverTick = true;
 
+	GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetHealthAttribute()).AddUObject(this, &UGAbilitySystemComponent::HealthUpdated);
 	
 }
 

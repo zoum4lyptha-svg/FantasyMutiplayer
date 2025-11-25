@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GAS/GAbilitySystemComponent.h"
 #include "GAS/GAttributeSet.h"
+#include "GAS/GAbilitySystemStatics.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/OverHeadStatsGauge.h"
 
@@ -25,6 +26,8 @@ AGCharacter::AGCharacter()
 	OverHeadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Over Head Widget Component");
 	// 头部血量组件必须要有 transform 的
 	OverHeadWidgetComponent->SetupAttachment(GetRootComponent());
+
+	BindGASChangeDelegates();
 }
 
 void AGCharacter::ServerSideInit()
@@ -44,9 +47,10 @@ void AGCharacter::ClientSideInit()
 
 bool AGCharacter::IsLocallyControlledByPlayer() const
 {
-	// 客户端的主控 或 服务器上的客户端主控
-	return GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_AutonomousProxy;
-	
+	// 客户端的主控 或 服务器上的客户端主控(划掉)，
+	// 换一个内置的接口，别自己抖机灵判断 owner connection了 
+	//return GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_AutonomousProxy;
+	return GetController() && GetController()->IsLocalPlayerController();
 }
 
 
@@ -85,6 +89,27 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 UAbilitySystemComponent* AGCharacter::GetAbilitySystemComponent() const
 {
 	return GAbilitySystemComponent;
+}
+
+void AGCharacter::BindGASChangeDelegates()
+{
+	// 监听 death这个tag的变化
+	if (GAbilitySystemComponent)
+	{
+		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &AGCharacter::DeathTagUpdated);
+	}
+}
+
+void AGCharacter::DeathTagUpdated(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount != 0)
+	{
+		StartDeathSequence();
+	}
+	else
+	{
+		Respawn();
+	}
 }
 
 void AGCharacter::ConfigureOverHeadStatusWidget()
@@ -127,5 +152,15 @@ void AGCharacter::UpdateHeadGaugeVisibility()
 		float DistSquared = FVector::DistSquared(GetActorLocation(), LocalPlayerPawn->GetActorLocation());
 		OverHeadWidgetComponent->SetHiddenInGame(DistSquared > HeadStatGaugeVisiblityRangeSquared);
 	}
+}
+
+void AGCharacter::StartDeathSequence()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Dead"));
+}
+
+void AGCharacter::Respawn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Respawn"));
 }
 

@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "GAS/GGameplayAbilityTypes.h"
+#include "GameplayEffectTypes.h"
 #include "GAbilitySystemComponent.generated.h"
 
 
@@ -22,6 +23,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
 	TArray<TSubclassOf<UGameplayEffect>> InitialEffects;
 
+	void HealthUpdated(const FOnAttributeChangeData& ChangeData);
+	// 死亡 GE 单独拿出来配
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
+	TSubclassOf<UGameplayEffect> DeathEffect;
 	// 配置需要注册的GA 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
 	TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>> Abilities;
