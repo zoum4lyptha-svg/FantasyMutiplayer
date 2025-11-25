@@ -7,6 +7,7 @@
 #include "GAS/GAbilitySystemComponent.h"
 #include "GAS/GAttributeSet.h"
 #include "GAS/GAbilitySystemStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
@@ -53,6 +54,12 @@ bool AGCharacter::IsLocallyControlledByPlayer() const
 	// 换一个内置的接口，别自己抖机灵判断 owner connection了 
 	//return GetLocalRole() == ROLE_AutonomousProxy || GetRemoteRole() == ROLE_AutonomousProxy;
 	return GetController() && GetController()->IsLocalPlayerController();
+}
+
+void AGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AGCharacter, TeamID);
 }
 
 
@@ -226,6 +233,16 @@ void AGCharacter::Respawn()
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
 	SetStatusGaugeEnabled(true);
 
+	// 注意 生成actor一定要限定在服务器
+	if (HasAuthority() && GetController())
+	{
+		TWeakObjectPtr<AActor> StartSpot = GetController()->StartSpot;
+		if (StartSpot.IsValid())
+		{
+			SetActorTransform(StartSpot->GetActorTransform());
+		}
+	}
+
 	if (GAbilitySystemComponent)
 	{
 		GAbilitySystemComponent->ApplyFullStatEffect();
@@ -238,5 +255,15 @@ void AGCharacter::OnDead()
 
 void AGCharacter::OnRespawn()
 {
+}
+
+void AGCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	TeamID = NewTeamID;
+}
+
+FGenericTeamId AGCharacter::GetGenericTeamId() const
+{
+	return TeamID;
 }
 

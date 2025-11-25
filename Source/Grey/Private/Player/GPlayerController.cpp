@@ -3,6 +3,7 @@
 
 #include "Player/GPlayerController.h"
 #include "Widgets/GameplayWidget.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Player/GPlayerCharacter.h"
 
@@ -13,6 +14,7 @@ void AGPlayerController::OnPossess(APawn* NewPawn)
 	if (GPlayerCharacter)
 	{
 		GPlayerCharacter->ServerSideInit();
+		GPlayerCharacter->SetGenericTeamId(TeamID);
 	}
 }
 
@@ -27,6 +29,22 @@ void AGPlayerController::AcknowledgePossession(APawn* NewPawn)
 		// 而且此时 服务器已经初始化 ASC完成，所以客户端不需要额外的rpc 去刷新数据
 		SpawnGameplayWidget();
 	}
+}
+
+void AGPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	TeamID = NewTeamID;
+}
+
+FGenericTeamId AGPlayerController::GetGenericTeamId() const
+{
+	return TeamID;
+}
+
+void AGPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AGPlayerController, TeamID);
 }
 
 void AGPlayerController::SpawnGameplayWidget()
