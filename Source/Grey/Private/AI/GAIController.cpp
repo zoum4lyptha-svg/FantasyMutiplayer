@@ -41,7 +41,7 @@ void AGAIController::OnPossess(APawn* NewPawn)
 {
 	Super::OnPossess(NewPawn);
 	
-	SetGenericTeamId(FGenericTeamId(0));
+	SetGenericTeamId(FGenericTeamId(1));
 
 	IGenericTeamAgentInterface* PawnTeamInterface = Cast<IGenericTeamAgentInterface>(NewPawn);
 	if (PawnTeamInterface)

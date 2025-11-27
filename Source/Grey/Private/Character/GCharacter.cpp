@@ -284,6 +284,10 @@ FGenericTeamId AGCharacter::GetGenericTeamId() const
 	return TeamID;
 }
 
+void AGCharacter::OnRep_TeamID()
+{
+}
+
 void AGCharacter::SetAIPerceptionStimuliSourceEnabled(bool bIsEnabled)
 {
 	if (!PerceptionStimuliSourceComponent)

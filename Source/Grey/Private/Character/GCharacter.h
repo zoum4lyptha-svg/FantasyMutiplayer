@@ -116,9 +116,12 @@ public:
 	/** Retrieve team identifier in form of FGenericTeamId */
 	virtual FGenericTeamId GetGenericTeamId() const override;
 private:
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_TeamID)
 	FGenericTeamId TeamID;
 
+	 
+	UFUNCTION()
+	virtual  void OnRep_TeamID();
 
 	/**********************************************************************/
 	/*                              被 AI 感知                               */
