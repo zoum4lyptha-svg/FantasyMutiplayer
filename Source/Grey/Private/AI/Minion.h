@@ -13,6 +13,10 @@ class GREY_API AMinion : public AGCharacter
 
 public:
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamId) override;
+
+	bool IsActive() const;
+	void Activate();
+
 private:
 	void PickSkinBasedOnTeamID();
 

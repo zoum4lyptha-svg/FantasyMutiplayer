@@ -3,13 +3,24 @@
 
 #include "Minion.h"
 
-
+#include "AbilitySystemComponent.h"
+#include "GAS/GAbilitySystemStatics.h"
 
 
 void AMinion::SetGenericTeamId(const FGenericTeamId& NewTeamId)
 {
 	Super::SetGenericTeamId(NewTeamId);
 	PickSkinBasedOnTeamID();
+}
+
+bool AMinion::IsActive() const
+{
+	return !GetAbilitySystemComponent()->HasMatchingGameplayTag(UGAbilitySystemStatics::GetDeadStatTag());
+}
+
+void AMinion::Activate()
+{
+	GetAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(UGAbilitySystemStatics::GetDeadStatTag()));
 }
 
 void AMinion::PickSkinBasedOnTeamID()

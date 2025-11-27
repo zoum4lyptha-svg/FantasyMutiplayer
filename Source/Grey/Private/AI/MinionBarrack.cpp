@@ -18,7 +18,12 @@ AMinionBarrack::AMinionBarrack()
 void AMinionBarrack::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnNewMinions(5);
+	// 只在服务器上生成对象，5s CD
+	if (HasAuthority())
+	{
+		GetWorldTimerManager().SetTimer(SpawnIntervalTimerHandle, this, &AMinionBarrack::SpawnNewGroup, GroupSpawnInterval, true);
+	}
+
 	
 }
 
@@ -46,6 +51,32 @@ const APlayerStart* AMinionBarrack::GetNextSpawnSpot()
 	return SpawnSpots[NextSpawnSpotIndex];
 }
 
+void AMinionBarrack::SpawnNewGroup()
+{
+	int i = MinionPerGroup;
+
+	while (i > 0)
+	{
+		FTransform SpawnTransfrom = GetActorTransform();
+		if (const APlayerStart* NextSpawnSpot = GetNextSpawnSpot())
+		{
+			SpawnTransfrom = NextSpawnSpot->GetActorTransform();
+		}
+
+		// 对象池中查找可复用对象（这里是“死亡”对象）
+		AMinion* NextAvaliableMinion = GetNextAvaliableMinion();
+		if (!NextAvaliableMinion)
+			break;
+
+		NextAvaliableMinion->SetActorTransform(SpawnTransfrom);
+		NextAvaliableMinion->Activate();
+		--i;
+	}
+
+	// 生成剩下的 Minions( i >= 0 )
+	SpawnNewMinions(i);
+}
+
 void AMinionBarrack::SpawnNewMinions(int Amt)
 {
 	for (int i = 0; i < Amt; i++)
@@ -57,10 +88,25 @@ void AMinionBarrack::SpawnNewMinions(int Amt)
 		}
 
 		// 延迟生成（需要先指定team） --指定team -- 加入对象池备用
+		// 注意： 延迟生成逻辑在生成小兵前就指定了teamID，所以 Minion,AIControl内部所有函数都可以直接拿到teamID
 		AMinion* NewMinion = GetWorld()->SpawnActorDeferred<AMinion>(MinionClass, SpawnTransfrom, this, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 		NewMinion->SetGenericTeamId(BarrackTeamId);
 		NewMinion->FinishSpawning(SpawnTransfrom);
 		MinionPool.Add(NewMinion);
 	}
+}
+
+AMinion* AMinionBarrack::GetNextAvaliableMinion() const
+{
+	for(AMinion* Minion : MinionPool)
+	{
+		if (!Minion->IsActive())
+		{
+			// 复用死亡对象
+			return Minion;
+		}
+	}
+
+	return nullptr;
 }
 

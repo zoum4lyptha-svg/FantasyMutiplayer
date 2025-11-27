@@ -41,13 +41,13 @@ void AGAIController::OnPossess(APawn* NewPawn)
 {
 	Super::OnPossess(NewPawn);
 	
-	SetGenericTeamId(FGenericTeamId(1));
 
 	IGenericTeamAgentInterface* PawnTeamInterface = Cast<IGenericTeamAgentInterface>(NewPawn);
 	if (PawnTeamInterface)
 	{
-		// AI角色是拿不到 PC的，只能从 pawn上拿
-		PawnTeamInterface->SetGenericTeamId(GetGenericTeamId());
+		SetGenericTeamId(PawnTeamInterface->GetGenericTeamId());
+		ClearAndDisableAllSenses();
+		EnableAllSenses();
 	}
 
 	UAbilitySystemComponent* PawnASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(NewPawn);
