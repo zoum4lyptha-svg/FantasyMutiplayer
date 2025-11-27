@@ -17,12 +17,17 @@ public:
 	bool IsActive() const;
 	void Activate();
 
+	void SetGoal(AActor* Goal);
+
 private:
 	void PickSkinBasedOnTeamID();
 
 	// 目前暂定只有AI才需要换外观。每次teamID变化时 重新加载对应的皮肤
 	virtual void OnRep_TeamID() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName GoalBlackboardKeyName = "Goal";
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Visual skin")
 	TMap<FGenericTeamId, USkeletalMesh*> SkinMap;
 };

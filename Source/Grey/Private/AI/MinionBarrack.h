@@ -40,6 +40,9 @@ private:
 	TArray<class AMinion*> MinionPool;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn")
+	AActor* MinionsGoal;
+	
+	UPROPERTY(EditAnywhere, Category = "Spawn")
 	TSubclassOf<class AMinion> MinionClass;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn")
