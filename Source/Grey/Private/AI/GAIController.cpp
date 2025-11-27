@@ -3,7 +3,10 @@
 
 #include "GAIController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GAS/GAbilitySystemStatics.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 
@@ -65,10 +68,8 @@ void AGAIController::TargetPerceptionUpdated(AActor* TargetActor, FAIStimulus St
 	}
 	else
 	{
-		/*if (GetCurrentTarget() == TargetActor)
-		{
-			SetCurrentTarget(nullptr);
-		}*/
+		// AI锁定目标死亡时立即遗忘对象，切换目标
+		ForgetActorIfDead(TargetActor);
 	}
 }
 
@@ -124,6 +125,30 @@ AActor* AGAIController::GetNextPerceivedActor() const
 	}
 
 	return nullptr;
+}
+
+void AGAIController::ForgetActorIfDead(AActor* ActorToForget)
+{
+	// 如果丢失目标是因为目标actor已死亡，则立刻遗忘
+	const UAbilitySystemComponent* ActorASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(ActorToForget);
+	if (!ActorASC)
+		return;
+
+	if (ActorASC->HasMatchingGameplayTag(UGAbilitySystemStatics::GetDeadStatTag()))
+	{
+		for (UAIPerceptionComponent::TActorPerceptionContainer::TIterator Iter = AIPerceptionComponent->GetPerceptualDataIterator(); Iter; ++Iter)
+		{
+			if (Iter->Key != ActorToForget)
+			{
+				continue;
+			}
+
+			for (FAIStimulus& Stimuli : Iter->Value.LastSensedStimuli)
+			{
+				Stimuli.SetStimulusAge(TNumericLimits<float>::Max());
+			}
+		}
+	}
 }
 
 

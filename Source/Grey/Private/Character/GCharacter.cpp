@@ -14,6 +14,8 @@
 #include "Widgets/OverHeadStatsGauge.h"
 
 #include "Components/SkeletalMeshComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 
 AGCharacter::AGCharacter()
@@ -31,6 +33,9 @@ AGCharacter::AGCharacter()
 	OverHeadWidgetComponent->SetupAttachment(GetRootComponent());
 
 	BindGASChangeDelegates();
+	
+
+	PerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>("Perception Stimuli Source Component");
 }
 
 void AGCharacter::ServerSideInit()
@@ -71,6 +76,8 @@ void AGCharacter::BeginPlay()
 	ConfigureOverHeadStatusWidget();
 
 	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
+
+	PerceptionStimuliSourceComponent->RegisterForSense(UAISense_Sight::StaticClass());
 }
 
 void AGCharacter::PossessedBy(AController* NewController)
@@ -221,6 +228,8 @@ void AGCharacter::StartDeathSequence()
 
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SetAIPerceptionStimuliSourceEnabled(false);
 }
 
 void AGCharacter::Respawn()
@@ -228,6 +237,8 @@ void AGCharacter::Respawn()
 	OnRespawn();
 	// debug: 重生时别忘了关了布娃娃
 	SetRagdollEnabled(false);
+
+	SetAIPerceptionStimuliSourceEnabled(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
@@ -265,5 +276,22 @@ void AGCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 FGenericTeamId AGCharacter::GetGenericTeamId() const
 {
 	return TeamID;
+}
+
+void AGCharacter::SetAIPerceptionStimuliSourceEnabled(bool bIsEnabled)
+{
+	if (!PerceptionStimuliSourceComponent)
+	{
+		return;
+	}
+
+	if (bIsEnabled)
+	{
+		PerceptionStimuliSourceComponent->RegisterWithPerceptionSystem();
+	}
+	else
+	{
+		PerceptionStimuliSourceComponent->UnregisterFromPerceptionSystem();
+	}
 }
 
