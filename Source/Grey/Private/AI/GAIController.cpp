@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GAS/GAbilitySystemStatics.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -47,6 +48,13 @@ void AGAIController::OnPossess(APawn* NewPawn)
 	{
 		// AI角色是拿不到 PC的，只能从 pawn上拿
 		PawnTeamInterface->SetGenericTeamId(GetGenericTeamId());
+	}
+
+	UAbilitySystemComponent* PawnASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(NewPawn);
+	if (PawnASC)
+	{
+		// AI control 也来监听死亡事件，死亡清理数据关闭AI,重生打开AI
+		PawnASC->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &AGAIController::PawnDeadTagUpdated);
 	}
 }
 
@@ -148,6 +156,44 @@ void AGAIController::ForgetActorIfDead(AActor* ActorToForget)
 				Stimuli.SetStimulusAge(TNumericLimits<float>::Max());
 			}
 		}
+	}
+}
+
+void AGAIController::ClearAndDisableAllSenses()
+{
+	// 刺激过期 -- 关闭所有感知 -- 清理所有blackboard数据 之后重新开始
+	AIPerceptionComponent->AgeStimuli(TNumericLimits<float>::Max());
+
+	for (auto SenseConfigIt = AIPerceptionComponent->GetSensesConfigIterator(); SenseConfigIt; ++SenseConfigIt)
+	{
+		AIPerceptionComponent->SetSenseEnabled((*SenseConfigIt)->GetSenseImplementation(), false);
+	}
+
+	if (GetBlackboardComponent())
+	{
+		GetBlackboardComponent()->ClearValue(TargetBlackboardKeyName);
+	}
+}
+
+void AGAIController::EnableAllSenses()
+{
+	for (auto SenseConfigIt = AIPerceptionComponent->GetSensesConfigIterator(); SenseConfigIt; ++SenseConfigIt)
+	{
+		AIPerceptionComponent->SetSenseEnabled((*SenseConfigIt)->GetSenseImplementation(), true);
+	}
+}
+
+void AGAIController::PawnDeadTagUpdated(const FGameplayTag Tag, int32 Count)
+{
+	if (Count != 0)
+	{
+		GetBrainComponent()->StopLogic("Dead");
+		ClearAndDisableAllSenses();
+	}
+	else
+	{
+		GetBrainComponent()->StartLogic();
+		EnableAllSenses();
 	}
 }
 

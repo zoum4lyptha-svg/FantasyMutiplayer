@@ -223,6 +223,12 @@ void AGCharacter::StartDeathSequence()
 {
 	// 执行自定义死亡事件（如果是 AI可以在这里关闭行为）--hide角色--禁止PC输入--关闭碰撞
 	OnDead();
+
+	if (GAbilitySystemComponent)
+	{
+		GAbilitySystemComponent->CancelAllAbilities();
+	}
+
 	PlayDeathAnimation();
 	SetStatusGaugeEnabled(false);
 
