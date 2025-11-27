@@ -80,6 +80,10 @@ private:
 	/**********************************************************************/
 	/*                             Death and Respawn                      */
 	/**********************************************************************/
+
+public:
+	bool IsDead() const;
+	void RespawnImmediately();
 private:
 
 	FTransform MeshRelativeTransform;

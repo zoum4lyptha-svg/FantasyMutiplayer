@@ -186,9 +186,26 @@ void AGCharacter::SetStatusGaugeEnabled(bool bIsEnabled)
 	}
 }
 
+bool AGCharacter::IsDead() const
+{
+	return GetAbilitySystemComponent()->HasMatchingGameplayTag(UGAbilitySystemStatics::GetDeadStatTag());
+}
+
+void AGCharacter::RespawnImmediately()
+{
+	if(HasAuthority())
+	{
+		GetAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(UGAbilitySystemStatics::GetDeadStatTag()));
+	}
+}
+
 void AGCharacter::DeathMontageFinished()
 {
-	SetRagdollEnabled(true);
+	// fix:只有在角色还有death的tag时才执行布娃娃，防止已经重生的角色打开布娃娃
+	if(IsDead())
+	{
+		SetRagdollEnabled(true);
+	}
 }
 
 void AGCharacter::SetRagdollEnabled(bool bIsEnabled)
