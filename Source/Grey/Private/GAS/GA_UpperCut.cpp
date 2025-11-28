@@ -47,6 +47,7 @@ void UGA_UpperCut::StartLaunching(FGameplayEventData EventData)
 		PushTarget(GetAvatarActorFromActorInfo(), FVector::UpVector * UpperCutLaunchSpeed);
 		for (FHitResult& HitResult : TargetHitResults)
 		{
+			ApplyGameplayEffectToHitResultActor(HitResult, LaunchDamageEffect, GetAbilityLevel(CurrentSpecHandle, CurrentActorInfo));
 			PushTarget(HitResult.GetActor(), FVector::UpVector * UpperCutLaunchSpeed);
 		}
 	}

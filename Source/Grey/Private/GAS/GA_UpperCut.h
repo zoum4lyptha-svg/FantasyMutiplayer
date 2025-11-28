@@ -20,6 +20,9 @@ public:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Launch")
+	TSubclassOf<UGameplayEffect> LaunchDamageEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Launch")
 	float UpperCutLaunchSpeed = 1000.f;
 
 	
