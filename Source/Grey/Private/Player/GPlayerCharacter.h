@@ -67,6 +67,17 @@ private:
 	void HandleMoveInput(const FInputActionValue& InputActionValue);
 
 	void HandleAbilityInput(const FInputActionValue& InputActionValue, EGAbilityInputID InputID);
+
+	void SetInputEnabledFromPlayerController(bool bEnabled);
+	/*************************************************************/
+	/*                           Stun                            */
+	/*************************************************************/
+	virtual void OnStun() override;
+	virtual void OnRecoverFromStun() override;
+
+
+
+
 	/*************************************************************/
 	/*                      Death and Respawn                    */
 	/*************************************************************/

@@ -111,10 +111,11 @@ UAbilitySystemComponent* AGCharacter::GetAbilitySystemComponent() const
 
 void AGCharacter::BindGASChangeDelegates()
 {
-	// 监听 death这个tag的变化
+	// 监听 death,stun tag的变化
 	if (GAbilitySystemComponent)
 	{
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &AGCharacter::DeathTagUpdated);
+		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetStunStatTag()).AddUObject(this, &AGCharacter::StunTagUpdated);
 	}
 }
 
@@ -127,6 +128,24 @@ void AGCharacter::DeathTagUpdated(const FGameplayTag Tag, int32 NewCount)
 	else
 	{
 		Respawn();
+	}
+}
+
+void AGCharacter::StunTagUpdated(const FGameplayTag Tag, int32 NewCount)
+{
+	// 基类处理晕眩，基本就是只考虑动画就行了，一些子类比如PC 就需要额外的再关掉玩家控制器
+	if (IsDead()) return;
+
+	if (NewCount != 0)
+	{
+		// 注意: 这里运行时多态，分别调用的 AI control 和 PC 自己的 OnStun 
+		OnStun();
+		PlayAnimMontage(StunMontage);
+	}
+	else
+	{
+		OnRecoverFromStun();
+		StopAnimMontage(StunMontage);
 	}
 }
 
@@ -184,6 +203,14 @@ void AGCharacter::SetStatusGaugeEnabled(bool bIsEnabled)
 	{
 		OverHeadWidgetComponent->SetHiddenInGame(true);
 	}
+}
+
+void AGCharacter::OnStun()
+{
+}
+
+void AGCharacter::OnRecoverFromStun()
+{
 }
 
 bool AGCharacter::IsDead() const

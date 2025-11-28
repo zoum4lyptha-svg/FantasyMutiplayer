@@ -12,3 +12,8 @@ FGameplayTag UGAbilitySystemStatics::GetDeadStatTag()
 {
 	return FGameplayTag::RequestGameplayTag("stats.dead");
 }
+
+FGameplayTag UGAbilitySystemStatics::GetStunStatTag()
+{
+	return FGameplayTag::RequestGameplayTag("stats.stun");
+}

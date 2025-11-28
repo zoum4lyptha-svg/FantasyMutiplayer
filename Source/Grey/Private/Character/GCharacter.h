@@ -50,6 +50,8 @@ private:
 	// 这里实现角色组件监听所有GAS相关的tag的接口 
 	void BindGASChangeDelegates();
 	void DeathTagUpdated(const FGameplayTag Tag, int32 NewCount);
+
+	void StunTagUpdated(const FGameplayTag Tag, int32 NewCount);
 	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay Ability")
 	class UGAbilitySystemComponent* GAbilitySystemComponent;
@@ -77,6 +79,16 @@ private:
 	void UpdateHeadGaugeVisibility();
 
 	void SetStatusGaugeEnabled(bool bIsEnabled);
+
+	/**********************************************************************/
+	/*                             Stun                                   */
+	/**********************************************************************/
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Stun")
+	UAnimMontage* StunMontage;
+
+	virtual void OnStun();
+	virtual void OnRecoverFromStun();
 	/**********************************************************************/
 	/*                             Death and Respawn                      */
 	/**********************************************************************/

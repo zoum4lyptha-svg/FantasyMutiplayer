@@ -3,6 +3,8 @@
 
 #include "GAP_Launched.h"
 
+#include "GAbilitySystemStatics.h"
+
 UGAP_Launched::UGAP_Launched()
 {
 	// 升空是被动触发技能 (GAP)最好关了本地预测，因为客户端actor会同步位置，所以不同步GA也不会有问题
@@ -11,7 +13,8 @@ UGAP_Launched::UGAP_Launched()
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	TriggerData.TriggerTag = GetLauchedAbilityActiationTag();
-
+	
+	ActivationBlockedTags.RemoveTag(UGAbilitySystemStatics::GetStunStatTag());
 	AbilityTriggers.Add(TriggerData);
 }
 

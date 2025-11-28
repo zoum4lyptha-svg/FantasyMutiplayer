@@ -4,6 +4,7 @@
 #include "GGameplayAbility.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "GAbilitySystemStatics.h"
 #include "GAP_Launched.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -17,6 +18,12 @@ class UAnimInstance* UGGameplayAbility::GetOwnerAnimInstance() const
 		return OwnerSkeletalMeshComp->GetAnimInstance();
 	}
 	return nullptr;
+}
+
+UGGameplayAbility::UGGameplayAbility()
+{
+	// 兜底设计，晕眩会默认block所有GA,自己按需打开
+	ActivationBlockedTags.AddTag(UGAbilitySystemStatics::GetStunStatTag());
 }
 
 TArray<FHitResult> UGGameplayAbility::GetHitResultFromSweepLocationTargetData(
@@ -38,8 +45,7 @@ bool bDrawDebug, bool bIgnoreSelf) const
 
 		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
-
-		// todo： 这个 ignore list 还可以拓展一下
+		
 		TArray<AActor*> ActorsToIgnore;
 		if (bIgnoreSelf)
 		{
