@@ -37,14 +37,17 @@ FGameplayTag UGA_UpperCut::GetUpperCutLaunchTag()
 
 void UGA_UpperCut::StartLaunching(FGameplayEventData EventData)
 {
-	TArray<FHitResult> TargetHitResults = GetHitResultFromSweepLocationTargetData(EventData.TargetData, TargetSweepSphereRadius, ETeamAttitude::Hostile, ShouldDrawDebug());
-
+	
 	// 注意 处理扫描结果逻辑只在服务器执行
 	if (K2_HasAuthority())
 	{
+		TArray<FHitResult> TargetHitResults = GetHitResultFromSweepLocationTargetData(EventData.TargetData, TargetSweepSphereRadius, ETeamAttitude::Hostile, ShouldDrawDebug());
+
+		// 注意 对敌人升龙前，别忘了把自己升上去
+		PushTarget(GetAvatarActorFromActorInfo(), FVector::UpVector * UpperCutLaunchSpeed);
 		for (FHitResult& HitResult : TargetHitResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("I Hit: %s"), *HitResult.GetActor()->GetName());
+			PushTarget(HitResult.GetActor(), FVector::UpVector * UpperCutLaunchSpeed);
 		}
 	}
 }

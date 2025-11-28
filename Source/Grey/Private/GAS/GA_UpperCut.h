@@ -19,6 +19,10 @@ public:
 
 private:
 
+	UPROPERTY(EditDefaultsOnly, Category = "Launch")
+	float UpperCutLaunchSpeed = 1000.f;
+
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
 	float TargetSweepSphereRadius = 80.f;
 	
