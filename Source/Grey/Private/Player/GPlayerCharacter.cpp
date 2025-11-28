@@ -2,6 +2,8 @@
 
 
 #include "Player/GPlayerCharacter.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -9,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GAS/GAbilitySystemStatics.h"
 
 AGPlayerCharacter::AGPlayerCharacter()
 {
@@ -101,6 +104,15 @@ void AGPlayerCharacter::HandleAbilityInput(const FInputActionValue& InputActionV
 	else
 	{
 		GetAbilitySystemComponent()->AbilityLocalInputReleased((int32)InputID);
+	}
+
+	if (InputID == EGAbilityInputID::BasicAttack)
+	{
+		// 注意：引擎自带的bPressed输入流是有同步和预测的，自己写一套直接向ASC发送Pressed的事件,激活 GA 监听input task，默认是不会同步的
+		// 注意： 左键按下这个输入事件只在客户端有，所以服务器是不会 send 这个事件的
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this , UGAbilitySystemStatics::GetBasicAttackInputPressedTag(), FGameplayEventData());
+
+		Server_SendGameplayEventToSelf(UGAbilitySystemStatics::GetBasicAttackInputPressedTag(), FGameplayEventData());
 	}
 	
 }

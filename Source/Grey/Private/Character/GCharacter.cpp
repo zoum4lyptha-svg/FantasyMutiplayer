@@ -3,6 +3,7 @@
 
 #include "Character/GCharacter.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GAS/GAbilitySystemComponent.h"
 #include "GAS/GAttributeSet.h"
@@ -107,6 +108,18 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 UAbilitySystemComponent* AGCharacter::GetAbilitySystemComponent() const
 {
 	return GAbilitySystemComponent;
+}
+
+void AGCharacter::Server_SendGameplayEventToSelf_Implementation(const FGameplayTag& EventTag,
+	const FGameplayEventData& EventData)
+{
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventTag, EventData);
+}
+
+bool AGCharacter::Server_SendGameplayEventToSelf_Validate(const FGameplayTag& EventTag,
+	const FGameplayEventData& EventData)
+{
+	return true;
 }
 
 void AGCharacter::BindGASChangeDelegates()
