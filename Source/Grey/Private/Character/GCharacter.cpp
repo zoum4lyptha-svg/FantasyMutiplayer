@@ -289,7 +289,8 @@ void AGCharacter::StartDeathSequence()
 	PlayDeathAnimation();
 	SetStatusGaugeEnabled(false);
 
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	// 决定死亡时不要关闭移动，因为升龙需要击飞死亡目标效果会好看一点
+	//GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SetAIPerceptionStimuliSourceEnabled(false);
@@ -303,7 +304,7 @@ void AGCharacter::Respawn()
 
 	SetAIPerceptionStimuliSourceEnabled(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	//GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.f);
 	SetStatusGaugeEnabled(true);
 
