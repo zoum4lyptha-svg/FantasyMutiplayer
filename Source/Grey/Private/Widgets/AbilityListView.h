@@ -17,4 +17,14 @@ class GREY_API UAbilityListView : public UListView
 
 public:
 	void ConfigureAbilities(const TMap<EGAbilityInputID, TSubclassOf<class UGameplayAbility>>& Abilities);
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Data")
+	UDataTable* AbilityDataTable;
+
+	void AbilityGaugeGenerated(UUserWidget& Widget);
+
+	// 检索 GA 的 data table
+	const struct FAbilityWidgetData* FindWidgetDataForAbility(const TSubclassOf<UGameplayAbility>& AbilityClass) const;
+
 };

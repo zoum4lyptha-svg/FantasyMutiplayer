@@ -10,13 +10,38 @@
 /**
  *   虚幻神人设计之不带 IUserObjectListEntry 这个接口是不给你配 UListView表的
  */
+
+USTRUCT(BlueprintType)
+struct FAbilityWidgetData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UGameplayAbility> AbilityClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName AbilityName;
+
+	// 这里纹理用TSoftObjectPtr，用到时才会加载，节约内存
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+};
+
 UCLASS()
 class GREY_API UAbilityGauge : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+	
+	void ConfigureWithWidgetData(const FAbilityWidgetData* WidgetData);
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Visual")
+	FName IconMaterialParamName = "Icon";
+	
 	UPROPERTY(meta=(BindWidget))
 	class UImage* Icon;
 

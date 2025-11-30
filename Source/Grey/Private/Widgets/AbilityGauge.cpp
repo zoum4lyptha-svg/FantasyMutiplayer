@@ -2,8 +2,18 @@
 
 
 #include "AbilityGauge.h"
+#include "Components/Image.h"
 
 void UAbilityGauge::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
+}
+
+void UAbilityGauge::ConfigureWithWidgetData(const FAbilityWidgetData* WidgetData)
+{
+	if (Icon && WidgetData)
+	{
+		// 给 UMG 的 icon 组件传纹理
+		Icon->GetDynamicMaterial()->SetTextureParameterValue(IconMaterialParamName, WidgetData->Icon.LoadSynchronous());
+	}
 }
