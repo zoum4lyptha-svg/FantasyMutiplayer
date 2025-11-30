@@ -35,6 +35,8 @@ class GREY_API UAbilityGauge : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 public:
+	virtual void NativeConstruct() override;
+	// 这个会在标记为IUserObjectListEntry的item 添加进list（additem）执行结束后调用
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	
 	void ConfigureWithWidgetData(const FAbilityWidgetData* WidgetData);
@@ -53,4 +55,7 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* CostText;
+	
+	UPROPERTY()
+	class UGameplayAbility* AbilityCDO;
 };
