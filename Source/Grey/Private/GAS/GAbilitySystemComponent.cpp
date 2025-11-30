@@ -42,6 +42,11 @@ void UGAbilitySystemComponent::ApplyFullStatEffect()
 	AuthApplyGameplayEffect(FullStatEffect);
 }
 
+const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& UGAbilitySystemComponent::GetAbilities() const
+{
+	return Abilities;
+}
+
 void UGAbilitySystemComponent::AuthApplyGameplayEffect(TSubclassOf<UGameplayEffect> GameplayEffect, int Level)
 {
 	if (GetOwner() && GetOwner()->HasAuthority())

@@ -19,6 +19,9 @@ public:
 	void GiveInitialAbilities();
 
 	void ApplyFullStatEffect();
+	
+	//拿的是角色的独有GA,不拿BasicAbilities
+	const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& GetAbilities() const;
 private:
 	void AuthApplyGameplayEffect(TSubclassOf<UGameplayEffect> GameplayEffect, int Level = 1);
 

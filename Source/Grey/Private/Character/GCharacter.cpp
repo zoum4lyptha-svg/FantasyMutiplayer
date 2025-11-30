@@ -68,6 +68,11 @@ void AGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AGCharacter, TeamID);
 }
 
+const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& AGCharacter::GetAbilities() const
+{
+	return GAbilitySystemComponent->GetAbilities();
+}
+
 
 void AGCharacter::BeginPlay()
 {
