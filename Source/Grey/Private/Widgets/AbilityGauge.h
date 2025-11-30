@@ -44,9 +44,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Visual")
 	FName IconMaterialParamName = "Icon";
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
+	float CooldownUpdateInterval = 0.1f;
+	
+	
 	UPROPERTY(meta=(BindWidget))
 	class UImage* Icon;
 
+	// material param
+	UPROPERTY(EditDefaultsOnly, Category = "Visual")
+	FName CooldownPercentParamname = "Percent";
+	
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* CooldownCounterText;
 
@@ -58,4 +66,21 @@ private:
 	
 	UPROPERTY()
 	class UGameplayAbility* AbilityCDO;
+	
+	
+	void AbilityCommitted(UGameplayAbility* Ability);
+
+	void StartCooldown(float CooldownTimeRemaining, float CooldownDuration);
+
+	float CachedCooldownDuration;
+	float CachedCooldownTimeRemaining;
+
+	FTimerHandle CooldownTimerHandle;
+	FTimerHandle CooldownTimerUpdateHandle;
+
+	FNumberFormattingOptions WholeNumberFormattionOptions;
+	FNumberFormattingOptions TwoDigitNumberFormattingOptions;
+
+	void CooldownFinished();
+	void UpdateCooldown();
 };

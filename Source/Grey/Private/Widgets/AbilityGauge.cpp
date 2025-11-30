@@ -3,6 +3,8 @@
 
 #include "AbilityGauge.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -10,7 +12,17 @@
 
 void UAbilityGauge::NativeConstruct()
 {
+	Super::NativeConstruct();
 	CooldownCounterText->SetVisibility(ESlateVisibility::Hidden);
+	UAbilitySystemComponent* OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningPlayerPawn());
+	if (OwnerASC)
+	{
+		// 注意这里监听的是GA的实际Commit，不是activate,因为只有在实际CommitAbility应用GA后才会正式进入冷却。而activate是可以随时取消的
+		OwnerASC->AbilityCommittedCallbacks.AddUObject(this, &UAbilityGauge::AbilityCommitted);
+	}
+
+	WholeNumberFormattionOptions.MaximumFractionalDigits = 0;
+	TwoDigitNumberFormattingOptions.MaximumFractionalDigits = 2;
 }
 
 void UAbilityGauge::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -33,4 +45,53 @@ void UAbilityGauge::ConfigureWithWidgetData(const FAbilityWidgetData* WidgetData
 		// 给 UMG 的 icon 组件传纹理
 		Icon->GetDynamicMaterial()->SetTextureParameterValue(IconMaterialParamName, WidgetData->Icon.LoadSynchronous());
 	}
+}
+
+void UAbilityGauge::AbilityCommitted(UGameplayAbility* Ability)
+{
+	
+	if (Ability->GetClass()->GetDefaultObject() == AbilityCDO)
+	{
+		float CooldownTimeRemaining = 0.f;
+		float CooldownDuration = 0.f;
+
+		// todo：这里有个问题，虽然拿到的是目标GA激活时实际的冷却和剩余时间。但是在本地计时期间 GA的冷却被其他GE修改了，
+		// UI是不会刷新的！  最好还是用 lyra 那套监听GE委托的方案
+		Ability->GetCooldownTimeRemainingAndDuration(Ability->GetCurrentAbilitySpecHandle(), Ability->GetCurrentActorInfo(), CooldownTimeRemaining, CooldownDuration);
+
+		StartCooldown(CooldownTimeRemaining, CooldownDuration);
+	}
+}
+
+void UAbilityGauge::StartCooldown(float CooldownTimeRemaining, float CooldownDuration)
+{
+	CooldownDurationText->SetText(FText::AsNumber(CooldownDuration));
+	CachedCooldownDuration = CooldownDuration;
+	CachedCooldownTimeRemaining = CooldownTimeRemaining;
+
+	CooldownCounterText->SetVisibility(ESlateVisibility::Visible);
+
+	// 冷却计时
+	GetWorld()->GetTimerManager().SetTimer(CooldownTimerHandle, this, &UAbilityGauge::CooldownFinished, CachedCooldownTimeRemaining);
+	// 更新 UI频率计时
+	GetWorld()->GetTimerManager().SetTimer(CooldownTimerUpdateHandle, this, &UAbilityGauge::UpdateCooldown, CooldownUpdateInterval, true, 0.f);
+	
+	Icon->GetDynamicMaterial()->SetScalarParameterValue(CooldownPercentParamname, 1.f);
+
+}
+
+void UAbilityGauge::CooldownFinished()
+{
+	CachedCooldownDuration = CachedCooldownTimeRemaining = 0.f;
+	CooldownCounterText->SetVisibility(ESlateVisibility::Hidden);
+	GetWorld()->GetTimerManager().ClearTimer(CooldownTimerUpdateHandle);
+}
+
+void UAbilityGauge::UpdateCooldown()
+{
+	CachedCooldownTimeRemaining -= CooldownUpdateInterval;
+	FNumberFormattingOptions* FormattingOptions = CachedCooldownTimeRemaining > 1 ? &WholeNumberFormattionOptions : &TwoDigitNumberFormattingOptions;
+	CooldownCounterText->SetText(FText::AsNumber(CachedCooldownTimeRemaining, FormattingOptions));
+	
+	Icon->GetDynamicMaterial()->SetScalarParameterValue(CooldownPercentParamname, 1.0f - CachedCooldownTimeRemaining / CachedCooldownDuration);
 }
