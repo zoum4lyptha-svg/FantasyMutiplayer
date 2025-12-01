@@ -3,6 +3,10 @@
 
 #include "TargetActor_GroundSelect.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GenericTeamAgentInterface.h"
+#include "Abilities/GameplayAbility.h"
+#include "Engine/OverlapResult.h"
 #include "Grey/Grey.h"
 
 
@@ -11,6 +15,61 @@ ATargetActor_GroundSelect::ATargetActor_GroundSelect()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void ATargetActor_GroundSelect::ConfirmTargetingAndContinue()
+{
+	TArray<FOverlapResult> OverlapResults;
+
+	FCollisionObjectQueryParams ObjectQueryParams;
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	FCollisionShape CollisionShape;
+	CollisionShape.SetSphere(TargetAreaRadius);
+
+	// 以碰撞球为范围查pawn类型 
+	GetWorld()->OverlapMultiByObjectType(OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
+		ObjectQueryParams,
+		CollisionShape
+	);
+
+	// TSet去除重复
+	TSet<AActor*> TargetActors;
+
+	// 处理碰撞对象的敌我
+	IGenericTeamAgentInterface* OwnerTeamInterface = nullptr; ;
+	if (OwningAbility)
+	{
+		OwnerTeamInterface = Cast<IGenericTeamAgentInterface>(OwningAbility->GetAvatarActorFromActorInfo());
+	}
+
+	for (const FOverlapResult& OverlapResult : OverlapResults)
+	{
+		if (OwnerTeamInterface && OwnerTeamInterface->GetTeamAttitudeTowards(*OverlapResult.GetActor()) == ETeamAttitude::Friendly && !bShouldTargetFriendly)
+			continue;
+
+		if (OwnerTeamInterface && OwnerTeamInterface->GetTeamAttitudeTowards(*OverlapResult.GetActor()) == ETeamAttitude::Hostile && !bShouldTargetEnemy)
+			continue;
+
+		TargetActors.Add(OverlapResult.GetActor());
+	}
+
+	FGameplayAbilityTargetDataHandle TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActorArray(TargetActors.Array(), false);
+
+	TargetDataReadyDelegate.Broadcast(TargetData);
+}
+
+void ATargetActor_GroundSelect::SetTargetOptions(bool bTargetFriendly, bool bTargetEnenmy)
+{
+	bShouldTargetFriendly = bTargetFriendly;
+	bShouldTargetEnemy = bTargetEnenmy;
+}
+
+
+void ATargetActor_GroundSelect::SetTargetAreaRadius(float NewRadius)
+{
+	TargetTraceRange = NewRadius;
+}
 
 
 void ATargetActor_GroundSelect::Tick(float DeltaTime)
