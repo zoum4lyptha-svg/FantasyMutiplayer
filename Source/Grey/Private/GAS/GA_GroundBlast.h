@@ -21,12 +21,17 @@ public:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 private:
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Cue")
+	FGameplayTag BlastGameplayCueTag;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
 	TSubclassOf<class ATargetActor_GroundSelect> TargetActorClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	UAnimMontage* GroundBlastMontage;
+	UAnimMontage* TargetingMontage;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* CastMontage;
 	// GE 和 检测范围的配表
 	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
 	float TargetAreaRadius = 300.f;

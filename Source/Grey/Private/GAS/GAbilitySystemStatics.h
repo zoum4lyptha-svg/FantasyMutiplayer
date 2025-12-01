@@ -29,4 +29,6 @@ public:
 	static float GetStaticCooldownDurationForAbility(const UGameplayAbility* Ability);
 	static float GetStaticCostForAbility(const UGameplayAbility* Ability);
 	static FGameplayTag GetAimStatTag();
+	
+	static FGameplayTag GetCameraShakeGameplayCueTag();
 };

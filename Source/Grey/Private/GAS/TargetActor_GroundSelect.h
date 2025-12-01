@@ -23,7 +23,9 @@ public:
 	FORCEINLINE void SetShouldDrawDebug(bool bDrawDebug) { bShouldDrawDebug = bDrawDebug; }
 
 	
-protected:
+private:
+	UPROPERTY(VisibleDefaultsOnly, Category = "Visual")
+	class UDecalComponent* DecalComp;
 	
 	// 敌我开关
 	bool bShouldTargetEnemy = true;

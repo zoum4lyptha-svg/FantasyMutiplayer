@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GenericTeamAgentInterface.h"
 #include "Abilities/GameplayAbility.h"
+#include "Components/DecalComponent.h"
 #include "Engine/OverlapResult.h"
 #include "Grey/Grey.h"
 
@@ -13,6 +14,11 @@
 ATargetActor_GroundSelect::ATargetActor_GroundSelect()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	SetRootComponent(CreateDefaultSubobject<USceneComponent>("Root Comp"));
+
+	DecalComp = CreateDefaultSubobject<UDecalComponent>("Decal Comp");
+	DecalComp->SetupAttachment(GetRootComponent());
 }
 
 void ATargetActor_GroundSelect::ConfirmTargetingAndContinue()
@@ -56,6 +62,15 @@ void ATargetActor_GroundSelect::ConfirmTargetingAndContinue()
 
 	FGameplayAbilityTargetDataHandle TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActorArray(TargetActors.Array(), false);
 
+	
+	
+	// targetData 多传一个 碰撞点data过去
+	FGameplayAbilityTargetData_SingleTargetHit* HitLoc = new FGameplayAbilityTargetData_SingleTargetHit;
+	HitLoc->HitResult.ImpactPoint = GetActorLocation();
+
+	TargetData.Add(HitLoc);
+
+	
 	TargetDataReadyDelegate.Broadcast(TargetData);
 }
 
@@ -69,6 +84,8 @@ void ATargetActor_GroundSelect::SetTargetOptions(bool bTargetFriendly, bool bTar
 void ATargetActor_GroundSelect::SetTargetAreaRadius(float NewRadius)
 {
 	TargetTraceRange = NewRadius;
+	// 贴花大小尽量和 选择区域大小保持一致
+	DecalComp->DecalSize = FVector{NewRadius};
 }
 
 
