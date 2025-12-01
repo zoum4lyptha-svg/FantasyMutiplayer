@@ -129,7 +129,7 @@ bool AGCharacter::Server_SendGameplayEventToSelf_Validate(const FGameplayTag& Ev
 
 void AGCharacter::BindGASChangeDelegates()
 {
-	// 监听 death,stun,anim tag的变化
+	// 监听 death,stun,aim tag的变化
 	if (GAbilitySystemComponent)
 	{
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &AGCharacter::DeathTagUpdated);
@@ -177,6 +177,13 @@ void AGCharacter::SetIsAimming(bool bIsAimming)
 {
 	bUseControllerRotationYaw = bIsAimming;
 	GetCharacterMovement()->bOrientRotationToMovement = !bIsAimming;
+	// 委托 call 子类，这里是 playerCharacter
+	OnAimStateChanged(bIsAimming);
+}
+
+void AGCharacter::OnAimStateChanged(bool bIsAimming)
+{
+	//一般是调子类
 }
 
 void AGCharacter::ConfigureOverHeadStatusWidget()

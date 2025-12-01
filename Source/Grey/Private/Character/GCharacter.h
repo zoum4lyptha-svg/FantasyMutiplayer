@@ -61,6 +61,8 @@ private:
 	void AimTagUpdated(const FGameplayTag Tag, int32 NewCount);
 	void SetIsAimming(bool bIsAimming);
 	
+	virtual void OnAimStateChanged(bool bIsAimming);
+	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay Ability")
 	class UGAbilitySystemComponent* GAbilitySystemComponent;
 	

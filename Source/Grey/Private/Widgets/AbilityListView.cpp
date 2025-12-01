@@ -11,6 +11,7 @@ void UAbilityListView::ConfigureAbilities(const TMap<EGAbilityInputID, TSubclass
 	// 注意时序问题：AddItem下一帧才会实际向list填数据，
 	// 这里直接调AbilityGaugeGenerated给icon喂数据是没有东西的，所以用委托延时触发
 	OnEntryWidgetGenerated().AddUObject(this, &UAbilityListView::AbilityGaugeGenerated);
+
 	for (const TPair<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& AbilityPair : Abilities)
 	{
 		AddItem(AbilityPair.Value.GetDefaultObject());
@@ -25,7 +26,11 @@ void UAbilityListView::AbilityGaugeGenerated(UUserWidget& Widget)
 
 	if (AbilityGauge)
 	{
-		AbilityGauge->ConfigureWithWidgetData(FindWidgetDataForAbility(AbilityGauge->GetListItem<UGameplayAbility>()->GetClass()));
+		const UGameplayAbility* Ability = AbilityGauge->GetListItem<UGameplayAbility>();
+		const TSubclassOf<UGameplayAbility> AbilityClass = Ability ? Ability->GetClass() : nullptr;
+		const FAbilityWidgetData* WidgetData = FindWidgetDataForAbility(AbilityClass);
+
+		AbilityGauge->ConfigureWithWidgetData(WidgetData);
 	}
 }
 

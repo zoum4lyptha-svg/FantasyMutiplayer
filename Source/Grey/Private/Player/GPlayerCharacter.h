@@ -36,12 +36,30 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "View")
 	class UCameraComponent* ViewCam;
+	
+	UPROPERTY(EditDefaultsOnly, Category = view)
+	FVector CameraAimLocalOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = view)
+	float CamerLerpSpeed = 20.f;
+	
+	FTimerHandle CamerLerpTimerHandle;
 
 	// 获取右方向，前方向，移动方向（不含Z轴）
 	FVector GetLookRightDir() const;
 	FVector GetLookFwdDir() const;
 	FVector GetMoveFwdDir() const;
+	
 
+	void LerpCameraToLocalOffsetLocation(const FVector& Goal);
+	void TickCameraLocalOffsetLerp(FVector Goal);
+
+	/*************************************************************/
+	/*                       Gameplay Ability                    */
+	/*************************************************************/
+private:
+	virtual void OnAimStateChanged(bool bIsAimming) override;
+	
 	/*************************************************************/
 	/*                           Input                           */
 	/*************************************************************/

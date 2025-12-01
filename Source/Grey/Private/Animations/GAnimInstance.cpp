@@ -49,7 +49,7 @@ void UGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LookRotOffset = UKismetMathLibrary::NormalizedDeltaRotator(ControlRot, BodyRot);
 
 		FwdSpeed = Velocity.Dot(ControlRot.Vector());
-		RightSpeed = Velocity.Dot(ControlRot.Vector().Cross(FVector::UpVector));
+		RightSpeed = -Velocity.Dot(ControlRot.Vector().Cross(FVector::UpVector));
 	}
 
 	if (OwnerMovementComp)
