@@ -28,4 +28,5 @@ public:
 	// todo: 这里用从CDO拿的，如果其他 GE修改了当前 GA 的冷却，最终显示在UI上的冷却是不会更新的
 	static float GetStaticCooldownDurationForAbility(const UGameplayAbility* Ability);
 	static float GetStaticCostForAbility(const UGameplayAbility* Ability);
+	static FGameplayTag GetAimStatTag();
 };

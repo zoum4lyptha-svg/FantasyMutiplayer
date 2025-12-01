@@ -129,11 +129,12 @@ bool AGCharacter::Server_SendGameplayEventToSelf_Validate(const FGameplayTag& Ev
 
 void AGCharacter::BindGASChangeDelegates()
 {
-	// 监听 death,stun tag的变化
+	// 监听 death,stun,anim tag的变化
 	if (GAbilitySystemComponent)
 	{
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &AGCharacter::DeathTagUpdated);
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetStunStatTag()).AddUObject(this, &AGCharacter::StunTagUpdated);
+		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetAimStatTag()).AddUObject(this, &AGCharacter::AimTagUpdated);
 	}
 }
 
@@ -165,6 +166,17 @@ void AGCharacter::StunTagUpdated(const FGameplayTag Tag, int32 NewCount)
 		OnRecoverFromStun();
 		StopAnimMontage(StunMontage);
 	}
+}
+
+void AGCharacter::AimTagUpdated(const FGameplayTag Tag, int32 NewCount)
+{
+	SetIsAimming(NewCount != 0);
+}
+
+void AGCharacter::SetIsAimming(bool bIsAimming)
+{
+	bUseControllerRotationYaw = bIsAimming;
+	GetCharacterMovement()->bOrientRotationToMovement = !bIsAimming;
 }
 
 void AGCharacter::ConfigureOverHeadStatusWidget()

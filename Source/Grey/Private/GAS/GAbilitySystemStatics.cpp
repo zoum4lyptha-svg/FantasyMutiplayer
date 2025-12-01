@@ -54,3 +54,8 @@ float UGAbilitySystemStatics::GetStaticCostForAbility(const UGameplayAbility* Ab
 	CostEffect->Modifiers[0].ModifierMagnitude.GetStaticMagnitudeIfPossible(1, Cost);
 	return FMath::Abs(Cost);
 }
+
+FGameplayTag UGAbilitySystemStatics::GetAimStatTag()
+{
+	return FGameplayTag::RequestGameplayTag("stats.aim");
+}
