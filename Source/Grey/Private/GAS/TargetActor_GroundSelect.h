@@ -19,6 +19,9 @@ public:
 	void SetTargetAreaRadius(float NewRadius);
 	void SetTargetOptions(bool bTargetFriendly, bool bTargetEnenmy = true);
 
+	FORCEINLINE void SetTargetTraceRange(float NewRange) { TargetTraceRange = NewRange; }
+	FORCEINLINE void SetShouldDrawDebug(bool bDrawDebug) { bShouldDrawDebug = bDrawDebug; }
+
 	
 protected:
 	
@@ -36,4 +39,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
 	float TargetAreaRadius = 300.f;
+	
+	bool bShouldDrawDebug = false;
 };

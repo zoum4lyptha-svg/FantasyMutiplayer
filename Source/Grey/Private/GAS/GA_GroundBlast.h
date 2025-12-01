@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GGameplayAbility.h"
+#include "GGameplayAbilityTypes.h"
 #include "GAS/TargetActor_GroundSelect.h"
 #include "GA_GroundBlast.generated.h"
 
@@ -26,7 +27,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* GroundBlastMontage;
 	
-	
+	// GE 和 检测范围的配表
+	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
+	float TargetAreaRadius = 300.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FGenericDamgeEffectDef DamageEffectDef;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
+	float TargetTraceRange = 2000.f;
+
 	
 	UFUNCTION()
 	void TargetConfirmed(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
