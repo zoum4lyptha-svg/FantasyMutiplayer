@@ -15,6 +15,7 @@
 #include "Widgets/OverHeadStatsGauge.h"
 
 #include "Components/SkeletalMeshComponent.h"
+#include "Grey/Grey.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 
@@ -25,6 +26,10 @@ AGCharacter::AGCharacter()
 
 	//把mesh的碰撞关了
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	// ECC_SpringArm通道是相机在用，ECC_Target是范围选取的视线检测在用
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_SpringArm, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 	
 	GAbilitySystemComponent = CreateDefaultSubobject<UGAbilitySystemComponent>("GAbility System Component");
 	GAttributeSet = CreateDefaultSubobject<UGAttributeSet>("GAttribute Set");

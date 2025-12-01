@@ -75,6 +75,9 @@ UGAbilitySystemComponent::UGAbilitySystemComponent()
 
 	GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetHealthAttribute()).AddUObject(this, &UGAbilitySystemComponent::HealthUpdated);
 	
+	//使用 target actor 时 要给引擎内部的确认 / 取消 的输入通道 绑定到 枚举 （枚举会被映射到增强输入）
+	GenericConfirmInputID = (int32)EGAbilityInputID::Confirm;
+	GenericCancelInputID = (int32)EGAbilityInputID::Cancel;
 }
 
 

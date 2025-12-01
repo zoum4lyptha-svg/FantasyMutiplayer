@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GGameplayAbility.h"
+#include "GAS/TargetActor_GroundSelect.h"
 #include "GA_GroundBlast.generated.h"
 
 /**
@@ -18,6 +19,18 @@ public:
 	UGA_GroundBlast();
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 private:
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
+	TSubclassOf<class ATargetActor_GroundSelect> TargetActorClass;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* GroundBlastMontage;
+	
+	
+	
+	UFUNCTION()
+	void TargetConfirmed(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UFUNCTION()
+	void TargetCanceled(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 };

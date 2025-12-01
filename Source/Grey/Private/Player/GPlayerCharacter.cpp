@@ -12,6 +12,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/GAbilitySystemStatics.h"
+#include "Grey/Grey.h"
 
 AGPlayerCharacter::AGPlayerCharacter()
 {
@@ -21,6 +22,7 @@ AGPlayerCharacter::AGPlayerCharacter()
 	// 相机旋转跟随pawn,拓展视角
 	CameraBoom->bUsePawnControlRotation = true;
 
+	CameraBoom->ProbeChannel = ECC_SpringArm;
 
 	ViewCam = CreateDefaultSubobject<UCameraComponent>("View Cam");
 	ViewCam->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
