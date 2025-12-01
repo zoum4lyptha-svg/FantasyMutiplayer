@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "GameplayTagContainer.h"
 #include "GAnimInstance.generated.h"
 
 /**
@@ -41,6 +42,13 @@ public:
 	FORCEINLINE float GetYawSpeed() const { return YawSpeed; }
 
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetFwdSpeed() const { return FwdSpeed; }
+
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE float GetRightSpeed() const { return RightSpeed; }
+
+	
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetSmoothedYawSpeed() const { return SmoothedYawSpeed; }
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE bool GetIsJumping() const { return bIsJumping; }
@@ -49,14 +57,22 @@ public:
 	FORCEINLINE bool GetIsOnGround() const { return !bIsJumping; }
 
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	FORCEINLINE bool GetIsAimming() const { return bIsAimming; }
+	
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetLookYawOffset() const { return LookRotOffset.Yaw; }
 
 	//todo: 这里其实有BUG,在多人网络时，GetBaseAimRotation 这个接口拿到的引擎管线的pitch存在着不支持同步的问题
 	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
 	FORCEINLINE float GetLookPitchOffset() const { return LookRotOffset.Pitch; }
 
+	UFUNCTION(BlueprintCallable, meta=(BlueprintThreadSafe))
+	bool ShouldDoFullBody() const;
 
 private:
+	
+	void OwnerAimTagChanged(const FGameplayTag Tag, int32 NewCount);
+	
 	UPROPERTY()
 	class ACharacter* OwnerCharacter;
 
@@ -68,6 +84,11 @@ private:
 
 	float SmoothedYawSpeed;
 
+	// 这里新加的所有单位都是从 GAS 或者 movement组件里拿到的，不需要多写同步
+	float FwdSpeed;
+	float RightSpeed;
+	bool bIsAimming;
+	
 	float YawSpeed;
 
 	bool bIsJumping;
