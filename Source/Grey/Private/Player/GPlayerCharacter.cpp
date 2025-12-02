@@ -12,6 +12,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/GAbilitySystemStatics.h"
+#include "GAS/GHeroAttributeSet.h"
 #include "Grey/Grey.h"
 
 AGPlayerCharacter::AGPlayerCharacter()
@@ -33,6 +34,8 @@ AGPlayerCharacter::AGPlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
 	
+	
+	HeorAttributeSet = CreateDefaultSubobject<UGHeroAttributeSet>("Hero Attribute Set");
 
 }
 

@@ -24,6 +24,21 @@ void UGAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGAttributeSet, MaxMana, OldValue);
 }
 
+void UGAttributeSet::OnRep_AttackDamage(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGAttributeSet, AttackDamage, OldValue);
+}
+
+void UGAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGAttributeSet, Armor, OldValue);
+}
+
+void UGAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGAttributeSet, MoveSpeed, OldValue);
+}
+
 void UGAttributeSet::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -31,6 +46,10 @@ void UGAttributeSet::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, Mana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+	
+	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, AttackDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
 }
 
 // todo: 完善合法性检查逻辑
