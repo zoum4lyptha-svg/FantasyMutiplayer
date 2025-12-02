@@ -30,6 +30,22 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	class UAbilityListView* AbilityListView;
 
+	// main UI 添加 英雄属性
+	UPROPERTY(meta=(BindWidget))
+	class UStatsGauge* AttackDamageGauge;
+
+	UPROPERTY(meta=(BindWidget))
+	class UStatsGauge* ArmorGauge;
+
+	UPROPERTY(meta=(BindWidget))
+	class UStatsGauge* MoveSpeedGauge;
+
+	UPROPERTY(meta=(BindWidget))
+	class UStatsGauge* IntenlligenceGauge;
+
+	UPROPERTY(meta=(BindWidget))
+	class UStatsGauge* StrengthGauge;
+
 	
 	UPROPERTY()
 	class UAbilitySystemComponent* OwnerAbilitySystemComponent;

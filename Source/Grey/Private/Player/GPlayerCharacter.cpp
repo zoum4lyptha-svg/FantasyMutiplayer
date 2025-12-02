@@ -35,7 +35,7 @@ AGPlayerCharacter::AGPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
 	
 	
-	HeorAttributeSet = CreateDefaultSubobject<UGHeroAttributeSet>("Hero Attribute Set");
+	HeroAttributeSet = CreateDefaultSubobject<UGHeroAttributeSet>("Hero Attribute Set");
 
 }
 

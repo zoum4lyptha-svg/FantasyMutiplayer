@@ -61,7 +61,7 @@ private:
 	virtual void OnAimStateChanged(bool bIsAimming) override;
 	
 	UPROPERTY()
-	class UGHeroAttributeSet* HeorAttributeSet;
+	class UGHeroAttributeSet* HeroAttributeSet;
 
 	/*************************************************************/
 	/*                           Input                           */
