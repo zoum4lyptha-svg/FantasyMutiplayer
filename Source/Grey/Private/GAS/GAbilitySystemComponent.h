@@ -34,6 +34,9 @@ private:
 	TArray<TSubclassOf<UGameplayEffect>> InitialEffects;
 
 	void HealthUpdated(const FOnAttributeChangeData& ChangeData);
+	
+	void ManaUpdated(const FOnAttributeChangeData& ChangeData);
+	
 	// 死亡 GE 单独拿出来配
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
 	TSubclassOf<UGameplayEffect> DeathEffect;

@@ -1,6 +1,7 @@
 ﻿
 #include "GAbilitySystemComponent.h"
 
+#include "GAbilitySystemStatics.h"
 #include "GHeroAttributeSet.h"
 #include "GAS/GAttributeSet.h"
 
@@ -104,12 +105,70 @@ void UGAbilitySystemComponent::AuthApplyGameplayEffect(TSubclassOf<UGameplayEffe
 
 void UGAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& ChangeData)
 {
-	if (!GetOwner()) return;
+	// update 限定服务器逻辑
+	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
 
-	if (ChangeData.NewValue <= 0 && GetOwner()->HasAuthority() && DeathEffect)
+	bool bFound = false;
+	float MaxHealth = GetGameplayAttributeValue(UGAttributeSet::GetMaxHealthAttribute(), bFound);
+	if (bFound && ChangeData.NewValue >= MaxHealth)
 	{
-		//在服务器应用死亡GE
-		AuthApplyGameplayEffect(DeathEffect);
+		if (!HasMatchingGameplayTag(UGAbilitySystemStatics::GetHealthFullStatTag()))
+		{
+			//This is done local only.(客户端本地不需要同步这类full TAG)
+			AddLooseGameplayTag(UGAbilitySystemStatics::GetHealthFullStatTag());
+		}
+	}
+	else
+	{
+		RemoveLooseGameplayTag(UGAbilitySystemStatics::GetHealthFullStatTag());
+	}
+
+	if (ChangeData.NewValue <= 0)
+	{
+		if (!HasMatchingGameplayTag(UGAbilitySystemStatics::GetHealthEmptyStatTag()))
+		{
+			AddLooseGameplayTag(UGAbilitySystemStatics::GetHealthEmptyStatTag());
+
+			if(DeathEffect)
+				AuthApplyGameplayEffect(DeathEffect);
+		}
+	}
+	else
+	{
+		RemoveLooseGameplayTag(UGAbilitySystemStatics::GetHealthEmptyStatTag());
+	}
+}
+
+void UGAbilitySystemComponent::ManaUpdated(const FOnAttributeChangeData& ChangeData)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+
+	bool bFound = false;
+	float MaxMana = GetGameplayAttributeValue(UGAttributeSet::GetMaxManaAttribute(), bFound);
+	if (bFound && ChangeData.NewValue >= MaxMana)
+	{
+		if (!HasMatchingGameplayTag(UGAbilitySystemStatics::GetManaFullStatTag()))
+		{
+			//添加/删除 全满 tag
+			AddLooseGameplayTag(UGAbilitySystemStatics::GetManaFullStatTag());
+		}
+	}
+	else
+	{
+		RemoveLooseGameplayTag(UGAbilitySystemStatics::GetManaFullStatTag());
+	}
+
+	if (ChangeData.NewValue <= 0)
+	{
+		if (!HasMatchingGameplayTag(UGAbilitySystemStatics::GetManaEmptyStatTag()))
+		{
+			// 添加/删除 空血tag
+			AddLooseGameplayTag(UGAbilitySystemStatics::GetManaEmptyStatTag());
+		}
+	}
+	else
+	{
+		RemoveLooseGameplayTag(UGAbilitySystemStatics::GetManaEmptyStatTag());
 	}
 }
 
@@ -120,6 +179,8 @@ UGAbilitySystemComponent::UGAbilitySystemComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetHealthAttribute()).AddUObject(this, &UGAbilitySystemComponent::HealthUpdated);
+	
+	GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetManaAttribute()).AddUObject(this, &UGAbilitySystemComponent::ManaUpdated);
 	
 	//使用 target actor 时 要给引擎内部的确认 / 取消 的输入通道 绑定到 枚举 （枚举会被映射到增强输入）
 	GenericConfirmInputID = (int32)EGAbilityInputID::Confirm;
