@@ -3,6 +3,9 @@
 
 #include "GAbilitySystemStatics.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
 #include "Abilities/GameplayAbility.h"
 
@@ -83,4 +86,23 @@ FGameplayTag UGAbilitySystemStatics::GetManaFullStatTag()
 FGameplayTag UGAbilitySystemStatics::GetManaEmptyStatTag()
 {
 	return FGameplayTag::RequestGameplayTag("stats.mana.empty");
+}
+
+FGameplayTag UGAbilitySystemStatics::GetHeroRoleTag()
+{
+	return FGameplayTag::RequestGameplayTag("role.hero");
+}
+
+bool UGAbilitySystemStatics::IsHero(const AActor* ActorToCheck)
+{
+	const IAbilitySystemInterface* ActorISA = Cast<IAbilitySystemInterface>(ActorToCheck);
+	if (ActorISA)
+	{
+		UAbilitySystemComponent* ActorASC = ActorISA->GetAbilitySystemComponent();
+		if (ActorASC)
+		{
+			return ActorASC->HasMatchingGameplayTag(GetHeroRoleTag());
+		}
+	}
+	return false;
 }

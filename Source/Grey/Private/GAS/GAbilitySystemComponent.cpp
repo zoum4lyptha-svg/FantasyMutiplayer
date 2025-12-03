@@ -1,7 +1,9 @@
 ﻿
 #include "GAbilitySystemComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GAbilitySystemStatics.h"
+#include "GameplayEffectExtension.h"
 #include "GHeroAttributeSet.h"
 #include "GAS/GAttributeSet.h"
 
@@ -36,6 +38,11 @@ void UGAbilitySystemComponent::GiveInitialAbilities()
 	for (const TPair<EGAbilityInputID,TSubclassOf<UGameplayAbility>>& AbilityPair : BasicAbilities)
 	{
 		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 1, (int32)AbilityPair.Key, nullptr));
+	}
+	
+	for (const TSubclassOf<UGameplayAbility>& PassiveAbility : PassiveAbilities)
+	{
+		GiveAbility(FGameplayAbilitySpec(PassiveAbility, 1, -1, nullptr));
 	}
 }
 
@@ -131,6 +138,13 @@ void UGAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& Chang
 
 			if(DeathEffect)
 				AuthApplyGameplayEffect(DeathEffect);
+			
+			// 应用死亡GE时，向受害者发送event 触发 Trigger 类型的GAP_death 结算赏金
+			FGameplayEventData DeadAbilityEventData;
+			if(ChangeData.GEModData)
+				DeadAbilityEventData.ContextHandle = ChangeData.GEModData->EffectSpec.GetContext();
+
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), UGAbilitySystemStatics::GetDeadStatTag(), DeadAbilityEventData);
 		}
 	}
 	else
