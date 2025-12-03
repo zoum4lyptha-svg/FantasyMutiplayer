@@ -88,6 +88,16 @@ FGameplayTag UGAbilitySystemStatics::GetManaEmptyStatTag()
 	return FGameplayTag::RequestGameplayTag("stats.mana.empty");
 }
 
+FGameplayTag UGAbilitySystemStatics::GetExperienceAttributeTag()
+{
+	return FGameplayTag::RequestGameplayTag("attr.experience");
+}
+
+FGameplayTag UGAbilitySystemStatics::GetGoldAttributeTag()
+{
+	return FGameplayTag::RequestGameplayTag("attr.gold");
+}
+
 FGameplayTag UGAbilitySystemStatics::GetHeroRoleTag()
 {
 	return FGameplayTag::RequestGameplayTag("role.hero");

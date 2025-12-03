@@ -36,7 +36,8 @@ public:
 	static FGameplayTag GetHealthEmptyStatTag();
 	static FGameplayTag GetManaFullStatTag();
 	static FGameplayTag GetManaEmptyStatTag();
-	
+	static FGameplayTag GetExperienceAttributeTag();
+	static FGameplayTag GetGoldAttributeTag();
 	
 	static FGameplayTag GetHeroRoleTag();
 

@@ -22,4 +22,25 @@ private:
 	float RewardRange = 1000.f;
 
 	TArray<AActor*> GetRewardTargets() const;
+	
+	
+	// 这里配基础奖励值
+	UPROPERTY(EditDefaultsOnly, Category = "Reward")
+	float BaseExperienceReward = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reward")
+	float BaseGoldReward = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reward")
+	float ExperienceRewardPerExperience = 0.1f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reward")
+	float GoldRewardPerExperience = 0.05f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Reward")
+	float KillerRewardPortion = 0.5f;
+
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Reward")
+	TSubclassOf<UGameplayEffect> RewardEffect;
 };

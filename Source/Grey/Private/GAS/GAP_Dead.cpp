@@ -3,7 +3,10 @@
 
 #include "GAP_Dead.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "GAbilitySystemStatics.h"
+#include "GHeroAttributeSet.h"
 #include "Engine/OverlapResult.h"
 
 UGAP_Dead::UGAP_Dead()
@@ -27,16 +30,63 @@ void UGAP_Dead::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 	if (K2_HasAuthority())
 	{
 		AActor* Killer = TriggerEventData->ContextHandle.GetEffectCauser();
-		if (Killer)
+		// DEBUG: 注意killer有可能是小兵... 不需要作为赏金瓜分的一份子
+		if (!Killer || !UGAbilitySystemStatics::IsHero(Killer))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("I am Dead, the killer is: %s"), *Killer->GetName());
+			Killer = nullptr;
 		}
 		
 		TArray<AActor*> RewardTargets = GetRewardTargets();
-		for (const AActor* RewardTarget : RewardTargets)
+		if (RewardTargets.Num() == 0 && !Killer)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Find Reward Target: %s"), *RewardTarget->GetName());
+			K2_EndAbility();
+			return;
 		}
+		
+		// 兜底逻辑 有时killer因为距离过远，在扫描范围外没有被添加
+		if (Killer && !RewardTargets.Contains(Killer))
+		{
+			RewardTargets.Add(Killer);
+		}
+		
+		bool bFound = false;
+		float SelfExperience = GetAbilitySystemComponentFromActorInfo_Ensured()->GetGameplayAttributeValue(UGHeroAttributeSet::GetExperienceAttribute(), bFound);
+
+		// ExperienceRewardPerExperience 与被击杀者相关的额外经验
+		float TotalExperienceReward = BaseExperienceReward + ExperienceRewardPerExperience * SelfExperience;
+		float TotalGoldReward = BaseGoldReward + GoldRewardPerExperience * SelfExperience;
+
+		if (Killer)
+		{
+			// 先由击杀者分走KillerRewardPortion比例的奖励
+			float KillerExperienceReward = TotalExperienceReward * KillerRewardPortion;
+			float KillerGoldReward = TotalGoldReward * KillerRewardPortion;
+
+			// 注意 这里根据block的规则，如果击杀者死亡，是不会应用这个奖励的
+			FGameplayEffectSpecHandle EffectSpec = MakeOutgoingGameplayEffectSpec(RewardEffect);
+			
+			// SetByCaller 把数值（exp，gold奖励）跟随 TAG 发给 killer，蓝图GE读取直接改
+			EffectSpec.Data->SetSetByCallerMagnitude(UGAbilitySystemStatics::GetExperienceAttributeTag(), KillerExperienceReward);
+			EffectSpec.Data->SetSetByCallerMagnitude(UGAbilitySystemStatics::GetGoldAttributeTag(), KillerGoldReward);
+
+			K2_ApplyGameplayEffectSpecToTarget(EffectSpec, UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Killer));
+
+			TotalExperienceReward -= KillerExperienceReward;
+			TotalGoldReward -= KillerGoldReward;
+		}
+
+		// 剩余奖励由剩下的nums瓜分
+		float ExperiencePerTarget = TotalExperienceReward / RewardTargets.Num();
+		float GoldPerTarget = TotalGoldReward / RewardTargets.Num();
+
+		FGameplayEffectSpecHandle EffectSpec = MakeOutgoingGameplayEffectSpec(RewardEffect);
+		
+		
+		EffectSpec.Data->SetSetByCallerMagnitude(UGAbilitySystemStatics::GetExperienceAttributeTag(), ExperiencePerTarget);
+		EffectSpec.Data->SetSetByCallerMagnitude(UGAbilitySystemStatics::GetGoldAttributeTag(), GoldPerTarget);
+
+		K2_ApplyGameplayEffectSpecToTarget(EffectSpec, UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActorArray(RewardTargets, true));
+		K2_EndAbility();
 	}
 }
 
