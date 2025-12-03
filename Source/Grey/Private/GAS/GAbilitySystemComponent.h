@@ -14,15 +14,18 @@ class GREY_API UGAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
-	void ApplyInitialEffects();
-
-	void GiveInitialAbilities();
+	void InitializeBaseHeroAttributes();
+	void ServerSideInit();
 
 	void ApplyFullStatEffect();
 	
 	//拿的是角色的独有GA,不拿BasicAbilities
 	const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& GetAbilities() const;
 private:
+	
+	void ApplyInitialEffects();
+	void GiveInitialAbilities();
+	
 	void AuthApplyGameplayEffect(TSubclassOf<UGameplayEffect> GameplayEffect, int Level = 1);
 
 
@@ -45,6 +48,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
 	TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>> BasicAbilities;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Base Stats")
+	UDataTable* BaseStatDataTable;
 public:
 	
 	UGAbilitySystemComponent();

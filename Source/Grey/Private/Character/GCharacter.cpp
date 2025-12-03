@@ -27,7 +27,6 @@ AGCharacter::AGCharacter()
 	//把mesh的碰撞关了
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	// ECC_SpringArm通道是相机在用，ECC_Target是范围选取的视线检测在用
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_SpringArm, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 	
@@ -47,8 +46,8 @@ AGCharacter::AGCharacter()
 void AGCharacter::ServerSideInit()
 {
 	GAbilitySystemComponent->InitAbilityActorInfo(this, this);
-	GAbilitySystemComponent->ApplyInitialEffects();  
-	GAbilitySystemComponent->GiveInitialAbilities();
+	// ASC 服务器侧 init 直接全部封装了一下
+	GAbilitySystemComponent->ServerSideInit();
 }
 
 void AGCharacter::ClientSideInit()
@@ -134,12 +133,13 @@ bool AGCharacter::Server_SendGameplayEventToSelf_Validate(const FGameplayTag& Ev
 
 void AGCharacter::BindGASChangeDelegates()
 {
-	// 监听 death,stun,aim tag的变化
+	// 监听 death,stun,aim tag的变化,监听 移动attribute的变化
 	if (GAbilitySystemComponent)
 	{
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetDeadStatTag()).AddUObject(this, &AGCharacter::DeathTagUpdated);
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetStunStatTag()).AddUObject(this, &AGCharacter::StunTagUpdated);
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetAimStatTag()).AddUObject(this, &AGCharacter::AimTagUpdated);
+		GAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetMoveSpeedAttribute()).AddUObject(this, &AGCharacter::MoveSpeedUpdated);
 	}
 }
 
@@ -189,6 +189,11 @@ void AGCharacter::SetIsAimming(bool bIsAimming)
 void AGCharacter::OnAimStateChanged(bool bIsAimming)
 {
 	//一般是调子类
+}
+
+void AGCharacter::MoveSpeedUpdated(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
 }
 
 void AGCharacter::ConfigureOverHeadStatusWidget()

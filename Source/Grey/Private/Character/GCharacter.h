@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GenericTeamAgentInterface.h"
+#include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
 #include "GAS/GGameplayAbilityTypes.h"
 #include "GCharacter.generated.h"
@@ -62,6 +63,8 @@ private:
 	void SetIsAimming(bool bIsAimming);
 	
 	virtual void OnAimStateChanged(bool bIsAimming);
+	
+	void MoveSpeedUpdated(const FOnAttributeChangeData& Data);
 	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay Ability")
 	class UGAbilitySystemComponent* GAbilitySystemComponent;

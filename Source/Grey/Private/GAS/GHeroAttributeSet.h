@@ -28,6 +28,8 @@ public:
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, Level)
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, MaxLevel)
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, Gold)
+	ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, StrengthGrowthRate)
+	ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, IntelligenceGrowthRate)
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_Intelligence)
@@ -44,6 +46,13 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_NextLevelExperience)
 	FGameplayAttributeData NextLevelExperience;
+	
+	UPROPERTY()
+	FGameplayAttributeData StrengthGrowthRate;
+	
+	UPROPERTY()
+	FGameplayAttributeData IntelligenceGrowthRate;
+
 
 	UPROPERTY(ReplicatedUsing = OnRep_Level)
 	FGameplayAttributeData Level;

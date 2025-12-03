@@ -1,5 +1,7 @@
 ﻿
 #include "GAbilitySystemComponent.h"
+
+#include "GHeroAttributeSet.h"
 #include "GAS/GAttributeSet.h"
 
 void UGAbilitySystemComponent::ApplyInitialEffects()
@@ -35,6 +37,50 @@ void UGAbilitySystemComponent::GiveInitialAbilities()
 		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 1, (int32)AbilityPair.Key, nullptr));
 	}
 }
+
+
+void UGAbilitySystemComponent::ServerSideInit()
+{
+	// 服务器侧读data table 设置 attribute
+	InitializeBaseHeroAttributes();
+	ApplyInitialEffects();
+	GiveInitialAbilities();
+}
+
+void UGAbilitySystemComponent::InitializeBaseHeroAttributes()
+{
+	if (!BaseStatDataTable || !GetOwner())
+	{
+		return;
+	}
+
+	const FHeroBaseStats* BaseStats = nullptr;
+
+	for (const TPair<FName, uint8*>& DataPair : BaseStatDataTable->GetRowMap())
+	{
+		BaseStats = BaseStatDataTable->FindRow<FHeroBaseStats>(DataPair.Key, "");
+		if (BaseStats && BaseStats->Class == GetOwner()->GetClass())
+		{
+			break;
+		}
+	}
+
+	if (BaseStats)
+	{
+		// 根据 table 中的 数据 设置 attribute
+		SetNumericAttributeBase(UGAttributeSet::GetMaxHealthAttribute(), BaseStats->BaseMaxHealth);
+		SetNumericAttributeBase(UGAttributeSet::GetMaxManaAttribute(), BaseStats->BaseMaxMana);
+		SetNumericAttributeBase(UGAttributeSet::GetAttackDamageAttribute(), BaseStats->BaseAttackDamage);
+		SetNumericAttributeBase(UGAttributeSet::GetArmorAttribute(), BaseStats->BaseArmor);
+		SetNumericAttributeBase(UGAttributeSet::GetMoveSpeedAttribute(), BaseStats->BaseMoveSpeed);
+
+		SetNumericAttributeBase(UGHeroAttributeSet::GetStrengthAttribute(), BaseStats->Strength);
+		SetNumericAttributeBase(UGHeroAttributeSet::GetStrengthGrowthRateAttribute(), BaseStats->StrengthGrowthRate);
+		SetNumericAttributeBase(UGHeroAttributeSet::GetIntelligenceAttribute(), BaseStats->Intelligence);
+		SetNumericAttributeBase(UGHeroAttributeSet::GetIntelligenceGrowthRateAttribute(), BaseStats->IntelligenceGrowthRate);
+	}
+}
+
 
 void UGAbilitySystemComponent::ApplyFullStatEffect()
 {

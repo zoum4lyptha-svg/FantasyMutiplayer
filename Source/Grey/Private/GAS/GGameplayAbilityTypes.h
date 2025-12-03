@@ -42,6 +42,7 @@ struct FHeroBaseStats : public FTableRowBase
 public:
 	FHeroBaseStats();
 
+	// 这里其实是放ACharacter的  
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> Class;
 
