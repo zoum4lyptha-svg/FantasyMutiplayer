@@ -5,6 +5,7 @@
 #include "GAbilitySystemStatics.h"
 #include "GameplayEffectExtension.h"
 #include "GHeroAttributeSet.h"
+#include "PA_AbilitySystemGenerics.h"
 #include "GAS/GAttributeSet.h"
 
 void UGAbilitySystemComponent::ApplyInitialEffects()
@@ -12,9 +13,11 @@ void UGAbilitySystemComponent::ApplyInitialEffects()
 	// 多人下只允许在服务器上 使用GE
 	if (!GetOwner() || !GetOwner()->HasAuthority())
 		return;
+	
+	if (!AbilitySystemGenerics)
+		return;
 
-	// 应用GE
-	for (const TSubclassOf<UGameplayEffect>& EffectClass : InitialEffects)
+	for (const TSubclassOf<UGameplayEffect>& EffectClass : AbilitySystemGenerics->GetInitialEffects())
 	{
 		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingSpec(EffectClass, 1, MakeEffectContext());
 		ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
@@ -40,7 +43,10 @@ void UGAbilitySystemComponent::GiveInitialAbilities()
 		GiveAbility(FGameplayAbilitySpec(AbilityPair.Value, 1, (int32)AbilityPair.Key, nullptr));
 	}
 	
-	for (const TSubclassOf<UGameplayAbility>& PassiveAbility : PassiveAbilities)
+	if (!AbilitySystemGenerics)
+		return;
+
+	for (const TSubclassOf<UGameplayAbility>& PassiveAbility : AbilitySystemGenerics->GetPassiveAbilities())
 	{
 		GiveAbility(FGameplayAbilitySpec(PassiveAbility, 1, -1, nullptr));
 	}
@@ -57,11 +63,13 @@ void UGAbilitySystemComponent::ServerSideInit()
 
 void UGAbilitySystemComponent::InitializeBaseHeroAttributes()
 {
-	if (!BaseStatDataTable || !GetOwner())
+	if (!AbilitySystemGenerics || ! AbilitySystemGenerics->GetBaseStatDataTable() || !GetOwner())
 	{
 		return;
 	}
 
+	const UDataTable* BaseStatDataTable = AbilitySystemGenerics->GetBaseStatDataTable();
+	
 	const FHeroBaseStats* BaseStats = nullptr;
 
 	for (const TPair<FName, uint8*>& DataPair : BaseStatDataTable->GetRowMap())
@@ -93,7 +101,9 @@ void UGAbilitySystemComponent::InitializeBaseHeroAttributes()
 void UGAbilitySystemComponent::ApplyFullStatEffect()
 {
 	// 服务器应用重生GE
-	AuthApplyGameplayEffect(FullStatEffect);
+	if (!AbilitySystemGenerics)
+		return;
+	AuthApplyGameplayEffect(AbilitySystemGenerics->GetFullStatEffect());
 }
 
 const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& UGAbilitySystemComponent::GetAbilities() const
@@ -136,8 +146,9 @@ void UGAbilitySystemComponent::HealthUpdated(const FOnAttributeChangeData& Chang
 		{
 			AddLooseGameplayTag(UGAbilitySystemStatics::GetHealthEmptyStatTag());
 
-			if(DeathEffect)
-				AuthApplyGameplayEffect(DeathEffect);
+
+			if(AbilitySystemGenerics && AbilitySystemGenerics->GetDeathEffect())
+				AuthApplyGameplayEffect(AbilitySystemGenerics->GetDeathEffect());
 			
 			// 应用死亡GE时，向受害者发送event 触发 Trigger 类型的GAP_death 结算赏金
 			FGameplayEventData DeadAbilityEventData;

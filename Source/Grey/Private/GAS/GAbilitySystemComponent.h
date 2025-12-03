@@ -28,22 +28,12 @@ private:
 	
 	void AuthApplyGameplayEffect(TSubclassOf<UGameplayEffect> GameplayEffect, int Level = 1);
 
-
-	// 这里放一些初始化ASC时就需要应用的GE
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
-	TArray<TSubclassOf<UGameplayEffect>> InitialEffects;
-
+	
 	void HealthUpdated(const FOnAttributeChangeData& ChangeData);
 	
 	void ManaUpdated(const FOnAttributeChangeData& ChangeData);
 	
-	// 死亡 GE 单独拿出来配
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
-	TSubclassOf<UGameplayEffect> DeathEffect;
-
-	//重生 GE
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Effects")
-	TSubclassOf<UGameplayEffect> FullStatEffect;
+	
 	// 配置需要注册的GA 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
 	TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>> Abilities;
@@ -51,13 +41,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
 	TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>> BasicAbilities;
 
-	
+	// 原来初始带的 GE GA data table 现在全部改 读 PrimaryData的表了
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
-	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
-	
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Base Stats")
-	UDataTable* BaseStatDataTable;
+	class UPA_AbilitySystemGenerics* AbilitySystemGenerics;
 public:
 	
 	UGAbilitySystemComponent();
