@@ -19,6 +19,8 @@ public:
 
 	void ApplyFullStatEffect();
 	
+	bool IsAtMaxLevel() const;
+	
 	//拿的是角色的独有GA,不拿BasicAbilities
 	const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& GetAbilities() const;
 private:
@@ -33,6 +35,8 @@ private:
 	
 	void ManaUpdated(const FOnAttributeChangeData& ChangeData);
 	
+	
+	void ExperienceUpdated(const FOnAttributeChangeData& ChangeData);
 	
 	// 配置需要注册的GA 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")

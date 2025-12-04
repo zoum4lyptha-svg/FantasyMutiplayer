@@ -106,6 +106,9 @@ void UGAbilitySystemComponent::InitializeBaseHeroAttributes()
 		SetNumericAttributeBase(UGHeroAttributeSet::GetMaxLevelExperienceAttribute(), MaxExp);
 
 		UE_LOG(LogTemp, Warning, TEXT("Max Level is: %d, max experience is: %f"), MaxLevel, MaxExp);
+	
+		// 初始化时要调一下UpdateExp,否则有一些 attribute没有内容
+		ExperienceUpdated(FOnAttributeChangeData());
 	}
 }
 
@@ -116,6 +119,14 @@ void UGAbilitySystemComponent::ApplyFullStatEffect()
 	if (!AbilitySystemGenerics)
 		return;
 	AuthApplyGameplayEffect(AbilitySystemGenerics->GetFullStatEffect());
+}
+
+bool UGAbilitySystemComponent::IsAtMaxLevel() const
+{
+	bool bFound;
+	float CurrentLevel = GetGameplayAttributeValue(UGHeroAttributeSet::GetLevelAttribute(), bFound);
+	float MaxLevel = GetGameplayAttributeValue(UGHeroAttributeSet::GetMaxLevelAttribute(), bFound);
+	return CurrentLevel >= MaxLevel;
 }
 
 const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& UGAbilitySystemComponent::GetAbilities() const
@@ -209,6 +220,58 @@ void UGAbilitySystemComponent::ManaUpdated(const FOnAttributeChangeData& ChangeD
 	}
 }
 
+void UGAbilitySystemComponent::ExperienceUpdated(const FOnAttributeChangeData& ChangeData)
+{
+	
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+		return;
+
+	if (IsAtMaxLevel())
+		return;
+
+	if (!AbilitySystemGenerics)
+		return;
+
+	float CurrentExp = ChangeData.NewValue;
+
+	const FRealCurve* ExperienceCurve = AbilitySystemGenerics->GetExperienceCurve();
+	if (!ExperienceCurve)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't find Experience Data!!"));
+		return;
+	}
+
+	float PrevLevelExp = 0;
+	float NextLevelExp = 0;
+	float NewLevel = 1;
+	
+	for (auto Iter = ExperienceCurve->GetKeyHandleIterator(); Iter; ++Iter)
+	{
+		// 到达当前第key等级需要的经验
+		float ExperienceToReachLevel = ExperienceCurve->GetKeyValue(*Iter);
+		if (CurrentExp < ExperienceToReachLevel)
+		{
+			//目标没有到key级，找到了到达下一级经验的NextLevelExp
+			NextLevelExp = ExperienceToReachLevel;
+			break;
+		}
+		// 到达的上一级经验		
+		PrevLevelExp = ExperienceToReachLevel;
+		NewLevel = Iter.GetIndex() + 1;
+	}
+
+	float CurrentLevel = GetNumericAttributeBase(UGHeroAttributeSet::GetLevelAttribute());
+	float CurrentUpgradePoint = GetNumericAttribute(UGHeroAttributeSet::GetUpgradePointAttribute());
+	
+	float LevelUpgraded = NewLevel - CurrentLevel;
+	float NewUpgradePoint = CurrentUpgradePoint + LevelUpgraded;
+
+	SetNumericAttributeBase(UGHeroAttributeSet::GetLevelAttribute(), NewLevel);
+	SetNumericAttributeBase(UGHeroAttributeSet::GetPrevLevelExperienceAttribute(), PrevLevelExp);
+	SetNumericAttributeBase(UGHeroAttributeSet::GetNextLevelExperienceAttribute(), NextLevelExp);
+	SetNumericAttributeBase(UGHeroAttributeSet::GetUpgradePointAttribute(), NewUpgradePoint);
+}
+
 
 UGAbilitySystemComponent::UGAbilitySystemComponent()
 {
@@ -218,6 +281,8 @@ UGAbilitySystemComponent::UGAbilitySystemComponent()
 	GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetHealthAttribute()).AddUObject(this, &UGAbilitySystemComponent::HealthUpdated);
 	
 	GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetManaAttribute()).AddUObject(this, &UGAbilitySystemComponent::ManaUpdated);
+	
+	GetGameplayAttributeValueChangeDelegate(UGHeroAttributeSet::GetExperienceAttribute()).AddUObject(this, &UGAbilitySystemComponent::ExperienceUpdated);
 	
 	//使用 target actor 时 要给引擎内部的确认 / 取消 的输入通道 绑定到 枚举 （枚举会被映射到增强输入）
 	GenericConfirmInputID = (int32)EGAbilityInputID::Confirm;
