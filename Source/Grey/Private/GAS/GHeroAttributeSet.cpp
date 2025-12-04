@@ -17,6 +17,8 @@ void UGHeroAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(UGHeroAttributeSet, Level, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGHeroAttributeSet, MaxLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGHeroAttributeSet, Gold, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGHeroAttributeSet, UpgradePoint, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGHeroAttributeSet, MaxLevelExperience, COND_None, REPNOTIFY_Always);
 }
 
 void UGHeroAttributeSet::OnRep_Intelligence(const FGameplayAttributeData& OldValue)
@@ -32,6 +34,16 @@ void UGHeroAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldValue)
 void UGHeroAttributeSet::OnRep_Experience(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGHeroAttributeSet, Experience, OldValue);
+}
+
+void UGHeroAttributeSet::OnRep_UpgradePoint(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGHeroAttributeSet, UpgradePoint, OldValue);
+}
+
+void UGHeroAttributeSet::OnRep_MaxLevelExperience(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGHeroAttributeSet, MaxLevelExperience, OldValue);
 }
 
 void UGHeroAttributeSet::OnRep_PrevLevelExperience(const FGameplayAttributeData& OldValue)

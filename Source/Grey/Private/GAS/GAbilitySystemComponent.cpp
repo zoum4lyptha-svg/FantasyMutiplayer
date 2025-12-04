@@ -95,6 +95,18 @@ void UGAbilitySystemComponent::InitializeBaseHeroAttributes()
 		SetNumericAttributeBase(UGHeroAttributeSet::GetIntelligenceAttribute(), BaseStats->Intelligence);
 		SetNumericAttributeBase(UGHeroAttributeSet::GetIntelligenceGrowthRateAttribute(), BaseStats->IntelligenceGrowthRate);
 	}
+	// Maxlevel, exp 不要 hardCode,从配表中读取
+	const FRealCurve* ExperienceCurve = AbilitySystemGenerics->GetExperienceCurve();
+	if (ExperienceCurve)
+	{
+		int MaxLevel = ExperienceCurve->GetNumKeys();
+		SetNumericAttributeBase(UGHeroAttributeSet::GetMaxLevelAttribute(), MaxLevel);
+
+		float MaxExp = ExperienceCurve->GetKeyValue(ExperienceCurve->GetLastKeyHandle());
+		SetNumericAttributeBase(UGHeroAttributeSet::GetMaxLevelExperienceAttribute(), MaxExp);
+
+		UE_LOG(LogTemp, Warning, TEXT("Max Level is: %d, max experience is: %f"), MaxLevel, MaxExp);
+	}
 }
 
 

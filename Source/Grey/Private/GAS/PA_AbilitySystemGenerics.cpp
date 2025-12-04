@@ -2,3 +2,13 @@
 
 
 #include "PA_AbilitySystemGenerics.h"
+
+
+const FRealCurve* UPA_AbilitySystemGenerics::GetExperienceCurve() const
+{
+	if (!ExperienceCurveTable)
+	{
+		return nullptr;
+	}
+	return ExperienceCurveTable->FindCurve(ExperienceRowName, "");
+}

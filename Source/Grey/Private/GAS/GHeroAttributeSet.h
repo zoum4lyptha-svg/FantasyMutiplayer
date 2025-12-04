@@ -26,7 +26,9 @@ public:
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, PrevLevelExperience)
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, NextLevelExperience)
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, Level)
+	ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, UpgradePoint)
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, MaxLevel)
+	ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, MaxLevelExperience)
     ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, Gold)
 	ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, StrengthGrowthRate)
 	ATTRIBUTE_ACCESSORS(UGHeroAttributeSet, IntelligenceGrowthRate)
@@ -57,9 +59,19 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Level)
 	FGameplayAttributeData Level;
 	
+	
+	UPROPERTY(ReplicatedUsing = OnRep_UpgradePoint)
+	FGameplayAttributeData UpgradePoint;
+	
+	
 	UPROPERTY(ReplicatedUsing = OnRep_MaxLevel)
 	FGameplayAttributeData MaxLevel;
 
+	
+	UPROPERTY(ReplicatedUsing = OnRep_MaxLevelExperience)
+	FGameplayAttributeData MaxLevelExperience;
+	
+	
 	UPROPERTY(ReplicatedUsing = OnRep_Gold)
 	FGameplayAttributeData Gold;
 
@@ -72,6 +84,14 @@ private:
 	UFUNCTION()
 	void OnRep_Experience(const FGameplayAttributeData& OldValue);
 
+	
+	UFUNCTION()
+	void OnRep_UpgradePoint(const FGameplayAttributeData& OldValue);
+	
+	UFUNCTION()
+	void OnRep_MaxLevelExperience(const FGameplayAttributeData& OldValue);
+	
+	
 	UFUNCTION()
 	void OnRep_PrevLevelExperience(const FGameplayAttributeData& OldValue);
 
