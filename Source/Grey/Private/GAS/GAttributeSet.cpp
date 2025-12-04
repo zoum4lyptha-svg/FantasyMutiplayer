@@ -52,6 +52,28 @@ void UGAttributeSet::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty 
 	DOREPLIFETIME_CONDITION_NOTIFY(UGAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
 }
 
+void UGAttributeSet::RescaleHealth()
+{
+	if (!GetOwningActor()->HasAuthority())
+		return;
+
+	if (GetCachedHealthPercent() != 0 && GetHealth() != 0)
+	{
+		SetHealth(GetMaxHealth() * GetCachedHealthPercent());
+	}
+}
+
+void UGAttributeSet::RescaleMana()
+{
+	if (!GetOwningActor()->HasAuthority())
+		return;
+
+	if (GetCachedManaPercent() != 0 && GetMana() != 0)
+	{
+		SetMana(GetMaxMana() * GetCachedManaPercent());
+	}
+}
+
 // todo: 完善合法性检查逻辑
 void UGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
@@ -71,9 +93,11 @@ void UGAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCa
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));
+		SetCachedHealthPercent(GetHealth()/GetMaxHealth());
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
+		SetCachedManaPercent(GetMana()/GetMaxMana());
 	}
 }

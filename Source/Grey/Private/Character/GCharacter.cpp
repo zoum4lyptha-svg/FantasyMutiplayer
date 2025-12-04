@@ -140,6 +140,9 @@ void AGCharacter::BindGASChangeDelegates()
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetStunStatTag()).AddUObject(this, &AGCharacter::StunTagUpdated);
 		GAbilitySystemComponent->RegisterGameplayTagEvent(UGAbilitySystemStatics::GetAimStatTag()).AddUObject(this, &AGCharacter::AimTagUpdated);
 		GAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetMoveSpeedAttribute()).AddUObject(this, &AGCharacter::MoveSpeedUpdated);
+		GAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &AGCharacter::MaxHealthUpdated);
+		GAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetMaxManaAttribute()).AddUObject(this, &AGCharacter::MaxManaUpdated);
+	
 	}
 }
 
@@ -194,6 +197,22 @@ void AGCharacter::OnAimStateChanged(bool bIsAimming)
 void AGCharacter::MoveSpeedUpdated(const FOnAttributeChangeData& Data)
 {
 	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
+}
+
+void AGCharacter::MaxHealthUpdated(const FOnAttributeChangeData& Data)
+{
+	if (IsValid(GAttributeSet))
+	{
+		GAttributeSet->RescaleHealth();
+	}
+}
+
+void AGCharacter::MaxManaUpdated(const FOnAttributeChangeData& Data)
+{
+	if (IsValid(GAttributeSet))
+	{
+		GAttributeSet->RescaleMana();
+	}
 }
 
 void AGCharacter::ConfigureOverHeadStatusWidget()

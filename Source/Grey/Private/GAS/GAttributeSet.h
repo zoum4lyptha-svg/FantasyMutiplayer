@@ -28,6 +28,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, MaxHealth)
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, Mana)
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, MaxMana)
+	ATTRIBUTE_ACCESSORS(UGAttributeSet, CachedHealthPercent)
+	ATTRIBUTE_ACCESSORS(UGAttributeSet, CachedManaPercent)
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, AttackDamage)
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, Armor)
 	ATTRIBUTE_ACCESSORS(UGAttributeSet, MoveSpeed)
@@ -35,6 +37,9 @@ public:
 
 	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const override;
 
+	void RescaleHealth();
+	void RescaleMana();
+	
 
 
 	// 注意:走 execution 而不是 MMC 的修改是不会调 PreAttributeChange的，
@@ -63,6 +68,13 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_MoveSpeed)
 	FGameplayAttributeData MoveSpeed;
+	
+	// 血量，蓝量百分比 是一个server only的量，不需要同步
+	UPROPERTY()
+	FGameplayAttributeData CachedHealthPercent;
+
+	UPROPERTY()
+	FGameplayAttributeData CachedManaPercent;
 	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldValue);

@@ -66,6 +66,10 @@ private:
 	
 	void MoveSpeedUpdated(const FOnAttributeChangeData& Data);
 	
+	// level up时从触发，补满生命
+	void MaxHealthUpdated(const FOnAttributeChangeData& Data);
+	void MaxManaUpdated(const FOnAttributeChangeData& Data);
+	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay Ability")
 	class UGAbilitySystemComponent* GAbilitySystemComponent;
 	
