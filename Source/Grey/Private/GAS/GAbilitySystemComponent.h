@@ -21,6 +21,14 @@ public:
 	
 	bool IsAtMaxLevel() const;
 	
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UpgradeAbilityWithID(EGAbilityInputID InputID);
+
+	//这个客户端升级的RPC目前暂时没用，写出来应对未来可能的客户端触发升级的行为。正常来说升级是服务器发生的行为
+	UFUNCTION(Client, Reliable)
+	void Client_AbilitySpecLevelUpdated(FGameplayAbilitySpecHandle Handle, int NewLevel);
+	
 	//拿的是角色的独有GA,不拿BasicAbilities
 	const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& GetAbilities() const;
 private:

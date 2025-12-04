@@ -78,6 +78,10 @@ private:
 	class UInputAction* MoveInputAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* LearnAbilityLeaderAction;
+
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* GameplayInputMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -89,6 +93,11 @@ private:
 
 	void HandleAbilityInput(const FInputActionValue& InputActionValue, EGAbilityInputID InputID);
 
+	// 升级键（ctrl） 按下/松开
+	void LearnAbiltiyLeaderDown(const FInputActionValue& InputActionValue);
+	void LearnAbiltiyLeaderUp(const FInputActionValue& InputActionValue);
+	bool bIsLearnAbilityLeaderDown = false;
+	
 	void SetInputEnabledFromPlayerController(bool bEnabled);
 	/*************************************************************/
 	/*                           Stun                            */

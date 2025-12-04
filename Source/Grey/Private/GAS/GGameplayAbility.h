@@ -16,6 +16,8 @@ class GREY_API UGGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 public:
 	UGGameplayAbility();
+	
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	//主要为GA子类提供一些方法
 protected:
 	class UAnimInstance* GetOwnerAnimInstance() const;

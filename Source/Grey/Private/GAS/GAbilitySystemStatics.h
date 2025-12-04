@@ -8,6 +8,7 @@
 #include "GAbilitySystemStatics.generated.h"
 
 class UGameplayAbility;
+struct FGameplayAbilitySpec;
 /**
  * 
  */
@@ -42,4 +43,6 @@ public:
 	static FGameplayTag GetHeroRoleTag();
 
 	static bool IsHero(const AActor* ActorToCheck);
+	
+	static bool IsAbilityAtMaxLevel(const FGameplayAbilitySpec& Spec);
 };

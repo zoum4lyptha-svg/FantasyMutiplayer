@@ -116,3 +116,8 @@ bool UGAbilitySystemStatics::IsHero(const AActor* ActorToCheck)
 	}
 	return false;
 }
+
+bool UGAbilitySystemStatics::IsAbilityAtMaxLevel(const FGameplayAbilitySpec& Spec)
+{
+	return Spec.Level >= 4;
+}

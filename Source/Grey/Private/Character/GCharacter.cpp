@@ -131,6 +131,14 @@ bool AGCharacter::Server_SendGameplayEventToSelf_Validate(const FGameplayTag& Ev
 	return true;
 }
 
+void AGCharacter::UpgradeAbilityWithInputID(EGAbilityInputID InputID)
+{
+	if (GAbilitySystemComponent)
+	{
+		GAbilitySystemComponent->Server_UpgradeAbilityWithID(InputID);
+	}
+}
+
 void AGCharacter::BindGASChangeDelegates()
 {
 	// 监听 death,stun,aim tag的变化,监听 移动attribute的变化

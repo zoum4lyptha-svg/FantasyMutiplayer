@@ -50,6 +50,10 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SendGameplayEventToSelf(const FGameplayTag& EventTag, const FGameplayEventData& EventData);
+
+protected:
+	void UpgradeAbilityWithInputID(EGAbilityInputID InputID);
+
 private:
 
 

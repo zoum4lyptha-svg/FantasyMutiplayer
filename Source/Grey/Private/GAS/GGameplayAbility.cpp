@@ -4,6 +4,7 @@
 #include "GGameplayAbility.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "GAbilitySystemStatics.h"
 #include "GAP_Launched.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -24,6 +25,20 @@ UGGameplayAbility::UGGameplayAbility()
 {
 	// 兜底设计，晕眩会默认block所有GA,自己按需打开
 	ActivationBlockedTags.AddTag(UGAbilitySystemStatics::GetStunStatTag());
+}
+
+bool UGGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	// 技能0级不允许释放（技能学习逻辑）
+	FGameplayAbilitySpec* AbilitySpec = ActorInfo->AbilitySystemComponent->FindAbilitySpecFromHandle(Handle);
+	if (AbilitySpec && AbilitySpec->Level <= 0)
+	{ 
+		return false;
+	}
+
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
 TArray<FHitResult> UGGameplayAbility::GetHitResultFromSweepLocationTargetData(

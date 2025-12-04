@@ -129,6 +129,42 @@ bool UGAbilitySystemComponent::IsAtMaxLevel() const
 	return CurrentLevel >= MaxLevel;
 }
 
+void UGAbilitySystemComponent::Server_UpgradeAbilityWithID_Implementation(EGAbilityInputID InputID)
+{
+	// 升级条件 1，要有升级点 2.当前技能没有到最大等级
+	bool bFound = false;
+	float UpgradePoint = GetGameplayAttributeValue(UGHeroAttributeSet::GetUpgradePointAttribute(), bFound);
+	if (!bFound || UpgradePoint <= 0)
+		return;
+
+	FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromInputID((int32)InputID);
+	if (!AbilitySpec || UGAbilitySystemStatics::IsAbilityAtMaxLevel(*AbilitySpec))
+		return;
+
+	SetNumericAttributeBase(UGHeroAttributeSet::GetUpgradePointAttribute(), UpgradePoint - 1);
+	AbilitySpec->Level += 1;
+	//注意 这里修改的是 某个ability实例中的level(技能等级)，不是attribute的level(角色等级)
+	// AbilitySpec GA实例是很大的，不同于属性的时刻网络同步策略，AbilitySpec是按内存管理的方式对待，只在dirty时同步
+	// 所以这里需要手动把服务器标记 level为  dirty, 客户端会在下一帧收到变化并触发监听变化的委托
+	MarkAbilitySpecDirty(*AbilitySpec);
+}
+
+bool UGAbilitySystemComponent::Server_UpgradeAbilityWithID_Validate(EGAbilityInputID InputID)
+{
+	return true;
+}
+
+void UGAbilitySystemComponent::Client_AbilitySpecLevelUpdated_Implementation(FGameplayAbilitySpecHandle Handle,
+	int NewLevel)
+{
+	FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
+	if (Spec)
+	{
+		Spec->Level = NewLevel;
+		AbilitySpecDirtiedCallbacks.Broadcast(*Spec);
+	}
+}
+
 const TMap<EGAbilityInputID, TSubclassOf<UGameplayAbility>>& UGAbilitySystemComponent::GetAbilities() const
 {
 	return Abilities;
