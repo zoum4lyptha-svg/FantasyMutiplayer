@@ -16,6 +16,7 @@ class GREY_API UMMC_BaseAttackDamage : public UGameplayModMagnitudeCalculation
 	
 public:
 	UMMC_BaseAttackDamage();
+	// 结合 双方的攻击/护甲 计算最终伤害
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const override;
 private:
 	FGameplayEffectAttributeCaptureDefinition DamageCaptureDef;
