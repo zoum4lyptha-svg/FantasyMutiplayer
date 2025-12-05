@@ -135,6 +135,7 @@ void AGCharacter::UpgradeAbilityWithInputID(EGAbilityInputID InputID)
 {
 	if (GAbilitySystemComponent)
 	{
+		// server RPC
 		GAbilitySystemComponent->Server_UpgradeAbilityWithID(InputID);
 	}
 }

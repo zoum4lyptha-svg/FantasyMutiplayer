@@ -4,9 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/IUserObjectListEntry.h"
+#include "GameplayEffectTypes.h"
 #include "Blueprint/UserWidget.h"
 #include "AbilityGauge.generated.h"
 
+
+
+class UAbilitySystemComponent;
+struct FGameplayAbilitySpec;
 /**
  *   虚幻神人设计之不带 IUserObjectListEntry 这个接口是不给你配 UListView表的
  */
@@ -55,6 +60,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Visual")
 	FName CooldownPercentParamname = "Percent";
 	
+	// material param for level up
+	UPROPERTY(EditDefaultsOnly, Category = "Visual")
+	FName AbilityLevelParamName = "Level";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Visual")
+	FName CanCastAbilityParamName = "CanCast";
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Visual")
+	FName UpgradePointAvaliableParamName = "UpgradeAvaliable";
+	
+	
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* CooldownCounterText;
 
@@ -63,6 +79,11 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* CostText;
+	
+	
+	UPROPERTY(meta=(BindWidget))
+	class UImage* LevelGauge;
+	
 	
 	UPROPERTY()
 	class UGameplayAbility* AbilityCDO;
@@ -83,4 +104,16 @@ private:
 
 	void CooldownFinished();
 	void UpdateCooldown();
+	
+	
+	const UAbilitySystemComponent* OwnerAbilitySystemComponent;
+	const FGameplayAbilitySpec* CachedAbilitySpec;
+
+	const FGameplayAbilitySpec* GetAbilitySpec();
+
+	bool bIsAbilityLeanred = false;
+
+	void AbilitySpecUpdated(const FGameplayAbilitySpec& AbilitySpec);
+	void UpdateCanCast();
+	void UpgradePointUpdated(const FOnAttributeChangeData& Data);
 };

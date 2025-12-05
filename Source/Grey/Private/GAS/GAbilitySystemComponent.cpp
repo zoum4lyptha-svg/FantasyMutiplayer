@@ -147,6 +147,8 @@ void UGAbilitySystemComponent::Server_UpgradeAbilityWithID_Implementation(EGAbil
 	// AbilitySpec GA实例是很大的，不同于属性的时刻网络同步策略，AbilitySpec是按内存管理的方式对待，只在dirty时同步
 	// 所以这里需要手动把服务器标记 level为  dirty, 客户端会在下一帧收到变化并触发监听变化的委托
 	MarkAbilitySpecDirty(*AbilitySpec);
+	
+	Client_AbilitySpecLevelUpdated(AbilitySpec->Handle, AbilitySpec->Level);
 }
 
 bool UGAbilitySystemComponent::Server_UpgradeAbilityWithID_Validate(EGAbilityInputID InputID)

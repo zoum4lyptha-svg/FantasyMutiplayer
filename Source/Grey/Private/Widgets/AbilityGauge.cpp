@@ -9,6 +9,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "GAS/GAbilitySystemStatics.h"
+#include "GAS/GHeroAttributeSet.h"
 
 void UAbilityGauge::NativeConstruct()
 {
@@ -19,8 +20,23 @@ void UAbilityGauge::NativeConstruct()
 	{
 		// 注意这里监听的是GA的实际Commit，不是activate,因为只有在实际CommitAbility应用GA后才会正式进入冷却。而activate是可以随时取消的
 		OwnerASC->AbilityCommittedCallbacks.AddUObject(this, &UAbilityGauge::AbilityCommitted);
+		// 监听GA spec的变化 更新材质的level,canCast等（等级，是否显示灰色）
+		OwnerASC->AbilitySpecDirtiedCallbacks.AddUObject(this, &UAbilityGauge::AbilitySpecUpdated);
+		// 监听 升级点变化，更新材质的UpgradePoint(level材质点亮第几个icon)
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UGHeroAttributeSet::GetUpgradePointAttribute()).AddUObject(this, &UAbilityGauge::UpgradePointUpdated);
+	
+	}
+	
+	bool bFound = false;
+	float UpgradePoint = OwnerASC->GetGameplayAttributeValue(UGHeroAttributeSet::GetUpgradePointAttribute(), bFound);
+	if (bFound)
+	{
+		FOnAttributeChangeData ChangeData;
+		ChangeData.NewValue = UpgradePoint;
+		UpgradePointUpdated(ChangeData);
 	}
 
+	OwnerAbilitySystemComponent = OwnerASC;
 	WholeNumberFormattionOptions.MaximumFractionalDigits = 0;
 	TwoDigitNumberFormattingOptions.MaximumFractionalDigits = 2;
 }
@@ -36,6 +52,8 @@ void UAbilityGauge::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	CooldownDurationText->SetText(FText::AsNumber(CooldownDuration));
 	CostText->SetText(FText::AsNumber(Cost));
+	// fix: 防呆兜底，材质中level默认可能不是0
+	LevelGauge->GetDynamicMaterial()->SetScalarParameterValue(AbilityLevelParamName, 0);
 }
 
 void UAbilityGauge::ConfigureWithWidgetData(const FAbilityWidgetData* WidgetData)
@@ -94,4 +112,49 @@ void UAbilityGauge::UpdateCooldown()
 	CooldownCounterText->SetText(FText::AsNumber(CachedCooldownTimeRemaining, FormattingOptions));
 	
 	Icon->GetDynamicMaterial()->SetScalarParameterValue(CooldownPercentParamname, 1.0f - CachedCooldownTimeRemaining / CachedCooldownDuration);
+}
+
+const FGameplayAbilitySpec* UAbilityGauge::GetAbilitySpec()
+{
+	// 只拿一次就够了，GA 的 spec是全局唯一的
+	if (!CachedAbilitySpec)
+	{
+		if (AbilityCDO && OwnerAbilitySystemComponent)
+		{
+			CachedAbilitySpec = OwnerAbilitySystemComponent->FindAbilitySpecFromClass(AbilityCDO->GetClass());
+		}
+	}
+
+	return CachedAbilitySpec;
+}
+
+void UAbilityGauge::AbilitySpecUpdated(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability != AbilityCDO)
+		return;
+
+	bIsAbilityLeanred = AbilitySpec.Level > 0;
+	LevelGauge->GetDynamicMaterial()->SetScalarParameterValue(AbilityLevelParamName, AbilitySpec.Level);
+	UpdateCanCast();
+}
+
+void UAbilityGauge::UpdateCanCast()
+{
+	Icon->GetDynamicMaterial()->SetScalarParameterValue(CanCastAbilityParamName, bIsAbilityLeanred ? 1 : 0);
+}
+
+void UAbilityGauge::UpgradePointUpdated(const FOnAttributeChangeData& Data)
+{
+	
+	bool HasUpgradePoint = Data.NewValue > 0;
+	const FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec();
+	if (AbilitySpec)
+	{
+		if (UGAbilitySystemStatics::IsAbilityAtMaxLevel(*AbilitySpec))
+		{
+			Icon->GetDynamicMaterial()->SetScalarParameterValue(UpgradePointAvaliableParamName, 0);
+			return;
+		}
+	}
+	Icon->GetDynamicMaterial()->SetScalarParameterValue(UpgradePointAvaliableParamName, HasUpgradePoint ? 1 : 0);
 }
