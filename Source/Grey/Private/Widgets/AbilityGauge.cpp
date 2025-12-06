@@ -9,6 +9,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "GAS/GAbilitySystemStatics.h"
+#include "GAS/GAttributeSet.h"
 #include "GAS/GHeroAttributeSet.h"
 
 void UAbilityGauge::NativeConstruct()
@@ -25,16 +26,18 @@ void UAbilityGauge::NativeConstruct()
 		// 监听 升级点变化，更新材质的UpgradePoint(level材质点亮第几个icon)
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UGHeroAttributeSet::GetUpgradePointAttribute()).AddUObject(this, &UAbilityGauge::UpgradePointUpdated);
 	
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UGAttributeSet::GetManaAttribute()).AddUObject(this, &UAbilityGauge::ManaUpdated);
+	
+		bool bFound = false;
+		float UpgradePoint = OwnerASC->GetGameplayAttributeValue(UGHeroAttributeSet::GetUpgradePointAttribute(), bFound);
+		if (bFound)
+		{
+			FOnAttributeChangeData ChangeData;
+			ChangeData.NewValue = UpgradePoint;
+			UpgradePointUpdated(ChangeData);
+		}
 	}
 	
-	bool bFound = false;
-	float UpgradePoint = OwnerASC->GetGameplayAttributeValue(UGHeroAttributeSet::GetUpgradePointAttribute(), bFound);
-	if (bFound)
-	{
-		FOnAttributeChangeData ChangeData;
-		ChangeData.NewValue = UpgradePoint;
-		UpgradePointUpdated(ChangeData);
-	}
 
 	OwnerAbilitySystemComponent = OwnerASC;
 	WholeNumberFormattionOptions.MaximumFractionalDigits = 0;
@@ -136,11 +139,27 @@ void UAbilityGauge::AbilitySpecUpdated(const FGameplayAbilitySpec& AbilitySpec)
 	bIsAbilityLeanred = AbilitySpec.Level > 0;
 	LevelGauge->GetDynamicMaterial()->SetScalarParameterValue(AbilityLevelParamName, AbilitySpec.Level);
 	UpdateCanCast();
+	
+	float NewCooldownDuration = UGAbilitySystemStatics::GetCooldownDurationFor(AbilitySpec.Ability, *OwnerAbilitySystemComponent, AbilitySpec.Level);
+	float NewCost = UGAbilitySystemStatics::GetManaCostFor(AbilitySpec.Ability, *OwnerAbilitySystemComponent, AbilitySpec.Level);
+	CooldownDurationText->SetText(FText::AsNumber(NewCooldownDuration));
+	CostText->SetText(FText::AsNumber(NewCost));
 }
 
 void UAbilityGauge::UpdateCanCast()
 {
-	Icon->GetDynamicMaterial()->SetScalarParameterValue(CanCastAbilityParamName, bIsAbilityLeanred ? 1 : 0);
+	const FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec();
+	bool bCanCast = bIsAbilityLeanred;
+	// bCanCast 1.bIsAbilityLeanred 2.cost检查通过
+	if (AbilitySpec)
+	{
+		if (OwnerAbilitySystemComponent && !UGAbilitySystemStatics::CheckAbilityCost(*AbilitySpec, *OwnerAbilitySystemComponent))
+		{
+			bCanCast = false;
+		}
+	}
+
+	Icon->GetDynamicMaterial()->SetScalarParameterValue(CanCastAbilityParamName, bCanCast ? 1 : 0);
 }
 
 void UAbilityGauge::UpgradePointUpdated(const FOnAttributeChangeData& Data)
@@ -157,4 +176,9 @@ void UAbilityGauge::UpgradePointUpdated(const FOnAttributeChangeData& Data)
 		}
 	}
 	Icon->GetDynamicMaterial()->SetScalarParameterValue(UpgradePointAvaliableParamName, HasUpgradePoint ? 1 : 0);
+}
+
+void UAbilityGauge::ManaUpdated(const FOnAttributeChangeData& Data)
+{
+	UpdateCanCast();
 }
