@@ -27,6 +27,7 @@ struct FGenericDamgeEffectDef
 {
 	GENERATED_BODY()
 
+	FGenericDamgeEffectDef();
 public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UGameplayEffect> DamageEffect;

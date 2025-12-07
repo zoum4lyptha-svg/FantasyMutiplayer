@@ -3,6 +3,13 @@
 
 #include "GAS/GGameplayAbilityTypes.h"
 
+FGenericDamgeEffectDef::FGenericDamgeEffectDef()
+	:DamageEffect{nullptr},
+	PushVelocity{0.f}
+{
+}
+
+
 FHeroBaseStats::FHeroBaseStats()
 	:Class {nullptr},
 	Strength{0.f},
