@@ -144,10 +144,12 @@ void UGA_Combo::ComboChangedEventReceived(FGameplayEventData Data)
 
 void UGA_Combo::DoDamage(FGameplayEventData Data)
 {
-	// 根据扫描计算轨迹碰撞
-	TArray<FHitResult> HitResults = GetHitResultFromSweepLocationTargetData(Data.TargetData,  TargetSweepSphereRadius);
+	// //现在不需要在服务器DoDamage时扫描了，直接用本地的扫描结果
+	// TArray<FHitResult> HitResults = GetHitResultFromSweepLocationTargetData(Data.TargetData,  TargetSweepSphereRadius);
 
-	for (const FHitResult& HitResult : HitResults)
+	int HitResultCount = UAbilitySystemBlueprintLibrary::GetDataCountFromTargetData(Data.TargetData);
+	
+	for (int i = 0; i < HitResultCount; i++)
 	{
 		// // 找和 GE tag 匹配的 GE
 		// TSubclassOf<UGameplayEffect> GameplayEffect = GetDamageEffectForCurrentCombo();
@@ -159,6 +161,8 @@ void UGA_Combo::DoDamage(FGameplayEventData Data)
 		// EffectSpecHandle.Data->SetContext(EffectContext);
 		//
 		// ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor()));
+		
+		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(Data.TargetData, i);
 		TSubclassOf<UGameplayEffect> GameplayEffect = GetDamageEffectForCurrentCombo();
 		ApplyGameplayEffectToHitResultActor(HitResult, GameplayEffect, GetAbilityLevel(CurrentSpecHandle, CurrentActorInfo));
 	}

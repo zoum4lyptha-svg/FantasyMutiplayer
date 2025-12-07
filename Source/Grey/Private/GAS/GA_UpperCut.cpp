@@ -3,6 +3,7 @@
 
 #include "GA_UpperCut.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GAbilitySystemStatics.h"
 #include "GameplayTagsManager.h"
 #include "GA_Combo.h"
@@ -65,12 +66,17 @@ void UGA_UpperCut::StartLaunching(FGameplayEventData EventData)
 	// 注意 处理扫描结果逻辑只在服务器执行
 	if (K2_HasAuthority())
 	{
-		TArray<FHitResult> TargetHitResults = GetHitResultFromSweepLocationTargetData(EventData.TargetData, TargetSweepSphereRadius, ETeamAttitude::Hostile, ShouldDrawDebug());
+		// 碰撞扫描改为在客户端本地的动画通知里做了
+		//TArray<FHitResult> TargetHitResults = GetHitResultFromSweepLocationTargetData(EventData.TargetData, TargetSweepSphereRadius, ETeamAttitude::Hostile, ShouldDrawDebug());
 
 		// 注意 对敌人升龙前，别忘了把自己升上去
 		PushTarget(GetAvatarActorFromActorInfo(), FVector::UpVector * UpperCutLaunchSpeed);
-		for (FHitResult& HitResult : TargetHitResults)
+		
+		// 注意 这个EventData是服务器自己动画通知发过来的，用的是服务器的碰撞结果
+		int HitResultCount = UAbilitySystemBlueprintLibrary::GetDataCountFromTargetData(EventData.TargetData);
+		for (int i = 0; i < HitResultCount; i++)
 		{
+			FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(EventData.TargetData, i);
 			ApplyGameplayEffectToHitResultActor(HitResult, LaunchDamageEffect, GetAbilityLevel(CurrentSpecHandle, CurrentActorInfo));
 			PushTarget(HitResult.GetActor(), FVector::UpVector * UpperCutLaunchSpeed);
 		}
@@ -113,7 +119,8 @@ void UGA_UpperCut::HandleComboDamageEvent(FGameplayEventData EventData)
 {
 	if (K2_HasAuthority())
 	{
-		TArray<FHitResult> TargetHitResults = GetHitResultFromSweepLocationTargetData(EventData.TargetData, TargetSweepSphereRadius, ETeamAttitude::Hostile, ShouldDrawDebug());
+		
+		
 		PushTarget(GetAvatarActorFromActorInfo(), FVector::UpVector * UpperComboHoldSpeed);
 		
 		const FGenericDamgeEffectDef* EffectDef = GetDamageEffectDefForCurrentCombo();
@@ -121,9 +128,10 @@ void UGA_UpperCut::HandleComboDamageEvent(FGameplayEventData EventData)
 		{
 			return;
 		}
-		for (FHitResult& HitResult : TargetHitResults)
+		int HitResultCount = UAbilitySystemBlueprintLibrary::GetDataCountFromTargetData(EventData.TargetData);for (int i = 0; i < HitResultCount; i++)
 		{
 			FVector PushVel = GetAvatarActorFromActorInfo()->GetActorTransform().TransformVector(EffectDef->PushVelocity);
+			FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(EventData.TargetData, i);
 			PushTarget(HitResult.GetActor(), PushVel);
 			ApplyGameplayEffectToHitResultActor(HitResult, EffectDef->DamageEffect, GetAbilityLevel(CurrentSpecHandle, CurrentActorInfo));
 		}
