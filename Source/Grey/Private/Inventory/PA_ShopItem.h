@@ -8,6 +8,8 @@
 
 
 class UPA_ShopItem;
+
+//items contain
 USTRUCT(BlueprintType)
 struct FItemCollection
 {
