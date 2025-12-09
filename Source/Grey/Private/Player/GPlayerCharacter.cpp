@@ -14,6 +14,7 @@
 #include "GAS/GAbilitySystemStatics.h"
 #include "GAS/GHeroAttributeSet.h"
 #include "Grey/Grey.h"
+#include "Inventory/InventoryComponent.h"
 
 AGPlayerCharacter::AGPlayerCharacter()
 {
@@ -37,6 +38,8 @@ AGPlayerCharacter::AGPlayerCharacter()
 	
 	HeroAttributeSet = CreateDefaultSubobject<UGHeroAttributeSet>("Hero Attribute Set");
 
+	
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
 }
 
 

@@ -117,5 +117,11 @@ private:
 	virtual void OnRespawn() override;
 
 
+	
+	/*************************************************************/
+	/*                      Inventory                            */
+	/*************************************************************/
+private:
+	class UInventoryComponent* InventoryComponent;
 
 };

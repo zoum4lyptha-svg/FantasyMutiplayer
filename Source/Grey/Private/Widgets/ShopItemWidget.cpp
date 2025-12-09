@@ -21,3 +21,13 @@ void UShopItemWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	//初始化 tips
 	SetToolTipWidget(ShopItem);
 }
+
+void UShopItemWidget::RightButtonClicked()
+{
+	OnItemPurchaseIssued.Broadcast(GetShopItem());
+}
+
+void UShopItemWidget::LeftButtonClicked()
+{
+	OnShopItemClicked.Broadcast(this);
+}

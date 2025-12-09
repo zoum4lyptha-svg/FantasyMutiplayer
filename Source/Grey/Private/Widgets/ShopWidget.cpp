@@ -4,6 +4,7 @@
 #include "ShopWidget.h"
 
 #include "ShopItemWidget.h"
+#include "Inventory/InventoryComponent.h"
 #include "Components/TileView.h"
 #include "FeameWork/GAssetManager.h"
 
@@ -14,6 +15,11 @@ void UShopWidget::NativeConstruct()
 	LoadShopItems();
 	//构建UI完成后 保存  ShopItem -> ItemWBP 的 映射
 	ShopItemList->OnEntryWidgetGenerated().AddUObject(this, &UShopWidget::ShopItemWidgetGenerated);
+	
+	if (APawn* OwnerPawn = GetOwningPlayerPawn())
+	{
+		OwnerInventoryComponent = OwnerPawn->GetComponentByClass<UInventoryComponent>();
+	}
 }
 
 void UShopWidget::LoadShopItems()
@@ -38,6 +44,10 @@ void UShopWidget::ShopItemWidgetGenerated(UUserWidget& NewWidget)
 	UShopItemWidget* ItemWidget = Cast<UShopItemWidget>(&NewWidget);
 	if (ItemWidget)
 	{
+		if (OwnerInventoryComponent)
+		{
+			ItemWidget->OnItemPurchaseIssued.AddUObject(OwnerInventoryComponent, &UInventoryComponent::TryPurchase);
+		}
 		ItemsMap.Add(ItemWidget->GetShopItem(), ItemWidget);
 	}
 }
