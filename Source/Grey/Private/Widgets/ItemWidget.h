@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widgets/ItemToolTip.h"
 #include "Blueprint/UserWidget.h"
 #include "ItemWidget.generated.h"
 
@@ -16,11 +17,18 @@ class GREY_API UItemWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void SetIcon(UTexture2D* IconTexture);
+	
+protected:
+	UItemToolTip* SetToolTipWidget(const UPA_ShopItem* Item);
+	
 private:
 	UPROPERTY(meta=(BindWidget))
 	class UImage* ItemIcon;
 
-
+	UPROPERTY(EditDefaultsOnly, Category = "ToolTip")
+	TSubclassOf<UItemToolTip> ItemToolTipClass;
+	
+	
 	// 鼠标点击和释放事件
 	virtual FReply NativeOnMouseButtonDown( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
 	virtual FReply NativeOnMouseButtonUp( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;

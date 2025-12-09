@@ -18,4 +18,6 @@ void UShopItemWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	}
 
 	SetIcon(ShopItem->GetIcon());
+	//初始化 tips
+	SetToolTipWidget(ShopItem);
 }

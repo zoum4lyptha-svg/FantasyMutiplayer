@@ -9,11 +9,11 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-              "Engine",
-              "GameplayAbilities",
-              "UMG",
-              "AIModule", 
-			  "CoreUObject"
+				"Engine",
+				"GameplayAbilities",
+				"UMG",
+				"AIModule",
+				"CoreUObject"
 			]
 		}
 	],
@@ -21,13 +21,17 @@
 		{
 			"Name": "ModelingToolsEditorMode",
 			"Enabled": true,
-           "TargetAllowList": [
-                 "Editor"
-            ]
-        },
-        {
-          "Name": "GameplayAbilities",
-          "Enabled": true
-        }
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "AssetSearch",
+			"Enabled": true
+		}
 	]
 }
