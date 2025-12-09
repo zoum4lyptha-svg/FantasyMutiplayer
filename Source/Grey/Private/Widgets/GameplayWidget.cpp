@@ -6,6 +6,7 @@
 #include "AbilityListView.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "ShopWidget.h"
 #include "Widgets/ValueGauge.h"
 #include "GAS/GAttributeSet.h"
 
@@ -28,4 +29,72 @@ void UGameplayWidget::NativeConstruct()
 void UGameplayWidget::ConfigureAbilities(const TMap<EGAbilityInputID, TSubclassOf<class UGameplayAbility>>& Abilities)
 {
 	AbilityListView->ConfigureAbilities(Abilities);
+}
+
+void UGameplayWidget::ToggleShop()
+{
+	if (ShopWidget->GetVisibility() == ESlateVisibility::HitTestInvisible)
+	{
+		ShopWidget->SetVisibility(ESlateVisibility::Visible);
+		// 目前shop动画就只做了 scale 0 ~ 1(正放)
+		PlayShopPopupAnimation(true);
+	
+		SetOwinigPawnInputEnabled(false);
+		SetShowMouseCursor(true);
+		SetFocusToGameAndUI();
+		ShopWidget->SetFocus();
+	}
+	else
+	{
+		ShopWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		// 反放
+		PlayShopPopupAnimation(false);
+		
+		SetOwinigPawnInputEnabled(true);
+		SetShowMouseCursor(false);
+		SetFocusToGameOnly();
+	}
+}
+
+void UGameplayWidget::PlayShopPopupAnimation(bool bPlayForward)
+{
+	if (bPlayForward)
+	{
+		PlayAnimationForward(ShopPopupAnimation);
+	}
+	else
+	{
+		PlayAnimationReverse(ShopPopupAnimation);
+	}
+}
+
+void UGameplayWidget::SetOwinigPawnInputEnabled(bool bPawnInputEnabled)
+{
+	if (bPawnInputEnabled)
+	{
+		GetOwningPlayerPawn()->EnableInput(GetOwningPlayer());
+	}
+	else
+	{
+		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
+	}
+}
+
+void UGameplayWidget::SetShowMouseCursor(bool bShowMouseCursor)
+{
+	GetOwningPlayer()->SetShowMouseCursor(bShowMouseCursor);
+}
+
+void UGameplayWidget::SetFocusToGameAndUI()
+{
+	FInputModeGameAndUI GameAndUIInputMode;
+	GameAndUIInputMode.SetHideCursorDuringCapture(false);
+
+	GetOwningPlayer()->SetInputMode(GameAndUIInputMode);
+}
+
+void UGameplayWidget::SetFocusToGameOnly()
+{
+	FInputModeGameOnly GameOnlyInputMode;
+	GetOwningPlayer() ->SetInputMode(GameOnlyInputMode);
 }

@@ -2,6 +2,9 @@
 
 
 #include "Player/GPlayerController.h"
+
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Widgets/GameplayWidget.h"
 #include "Net/UnrealNetwork.h"
 
@@ -47,6 +50,23 @@ void AGPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(AGPlayerController, TeamID);
 }
 
+void AGPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (InputSubsystem)
+	{
+		InputSubsystem->RemoveMappingContext(UIInputMapping);
+		InputSubsystem->AddMappingContext(UIInputMapping, 1);
+	}
+
+	UEnhancedInputComponent* EnhancedInputComp = Cast<UEnhancedInputComponent>(InputComponent);
+	if (EnhancedInputComp)
+	{
+		EnhancedInputComp->BindAction(ShopToggleInputAction, ETriggerEvent::Triggered, this, &AGPlayerController::ToggleShop);
+	}
+}
+
 void AGPlayerController::SpawnGameplayWidget()
 {
 	// 兜底，1.模拟 proxy不画 UI 2.敌人角色不画 UI  只在当前主控角色画UI
@@ -59,4 +79,13 @@ void AGPlayerController::SpawnGameplayWidget()
 		GameplayWidget->AddToViewport();
 		GameplayWidget->ConfigureAbilities(GPlayerCharacter->GetAbilities());
 	}
+}
+
+void AGPlayerController::ToggleShop()
+{
+	if(GameplayWidget)
+	{
+		GameplayWidget->ToggleShop();
+	}
+
 }

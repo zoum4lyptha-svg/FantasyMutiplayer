@@ -19,6 +19,8 @@ public:
 	virtual void NativeConstruct() override;
 	
 	void ConfigureAbilities(const TMap<EGAbilityInputID, TSubclassOf<class UGameplayAbility>>& Abilities);
+
+	void ToggleShop();
 private:
 	// 生命条 + 魔力条
 	UPROPERTY(meta=(BindWidget))
@@ -49,7 +51,15 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	class UShopWidget* ShopWidget;
 
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	class UWidgetAnimation* ShopPopupAnimation;
 
+	void PlayShopPopupAnimation(bool bPlayForward);
+	
+	void SetOwinigPawnInputEnabled(bool bPawnInputEnabled);
+	void SetShowMouseCursor(bool bShowMouseCursor);
+	void SetFocusToGameAndUI();
+	void SetFocusToGameOnly();
 	
 	UPROPERTY()
 	class UAbilitySystemComponent* OwnerAbilitySystemComponent;

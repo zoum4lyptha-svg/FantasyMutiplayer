@@ -31,6 +31,8 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 
+
+	virtual void SetupInputComponent() override;
 	
 private:
 
@@ -49,4 +51,13 @@ private:
 	// 注意 team id 没有被 GAS 管理，需要你手动写一套复制
 	UPROPERTY(Replicated)
 	FGenericTeamId TeamID;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputMappingContext* UIInputMapping;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	class UInputAction* ShopToggleInputAction;
+
+	UFUNCTION()
+	void ToggleShop();
 };
