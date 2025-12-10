@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActiveGameplayEffectHandle.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "UObject/Object.h"
 #include "InventoryItem.generated.h"
 
 
 class UPA_ShopItem;
-
+class UAbilitySystemComponent;
 
 USTRUCT()
 struct FInventoryItemHandle
@@ -47,9 +49,18 @@ class GREY_API UInventoryItem : public UObject
     	void InitItem(const FInventoryItemHandle& NewHandle, const UPA_ShopItem* NewShopItem);
     	const UPA_ShopItem* GetShopItem() const { return ShopItem; }
     	FInventoryItemHandle GetHandle() const { return Handle; }
+	
+		
+	void ApplyGasModifications(UAbilitySystemComponent* AbilitySystemComponent);
+	
     private:
 		// 仓库物品本身也存了一份handle
     	UPROPERTY()
     	const UPA_ShopItem* ShopItem;
     	FInventoryItemHandle Handle;
+	
+	// 配表物品自带的GA和GE
+	FActiveGameplayEffectHandle AppliedEquipedEffectHandle;
+	FGameplayAbilitySpecHandle GrantedAbiltiySpecHandle;
+	
 };

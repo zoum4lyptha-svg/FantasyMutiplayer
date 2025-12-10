@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActiveGameplayEffectHandle.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/InventoryItem.h"
 #include "InventoryComponent.generated.h"
@@ -56,5 +58,5 @@ private:
 private:
 	UFUNCTION(Client, Reliable)
 	void Client_ItemAdded(FInventoryItemHandle AssignedHandle, const UPA_ShopItem* Item);
-		
+	
 };

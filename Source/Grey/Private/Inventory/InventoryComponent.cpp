@@ -48,9 +48,11 @@ void UInventoryComponent::GrantItem(const UPA_ShopItem* NewItem)
 	InventoryMap.Add(NewHandle, InventoryItem);
 	
 	OnItemAdded.Broadcast(InventoryItem);
-	UE_LOG(LogTemp, Warning, TEXT("Server Adding Shop Item: %s, with Id: %d"), *(InventoryItem->GetShopItem()->GetItemName().ToString()), NewHandle.GetHandleId());
+	
 	// 客户端 RPC 建一个一样的 handle map实现双端只用handle同步
 	Client_ItemAdded(NewHandle, NewItem);
+	
+	InventoryItem->ApplyGasModifications(OwnerAbilitySystemComponent);
 }
 
 
@@ -64,7 +66,7 @@ void UInventoryComponent::Client_ItemAdded_Implementation(FInventoryItemHandle A
 	InventoryItem->InitItem(AssignedHandle, Item);
 	InventoryMap.Add(AssignedHandle, InventoryItem);
 	OnItemAdded.Broadcast(InventoryItem);
-	UE_LOG(LogTemp, Warning, TEXT("Client Adding Shop Item: %s, with Id: %d"), *(InventoryItem->GetShopItem()->GetItemName().ToString()), AssignedHandle.GetHandleId());
+
 }
 
 void UInventoryComponent::Server_Purchase_Implementation(const UPA_ShopItem* ItemToPurchase)
