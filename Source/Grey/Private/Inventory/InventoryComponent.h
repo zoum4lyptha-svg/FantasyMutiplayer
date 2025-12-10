@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Inventory/InventoryItem.h"
 #include "InventoryComponent.generated.h"
 
 class UAbilitySystemComponent;
 class UPA_ShopItem;
+
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnItemAddedDelegate, UInventoryItem* /*NewItem*/);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -18,6 +22,8 @@ class UInventoryComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UInventoryComponent();
+	
+	FOnItemAddedDelegate OnItemAdded;
 	
 	// 实现背包的购买逻辑，注意 购买逻辑限定服务器执行 Server_Purchase
 	void TryPurchase(const UPA_ShopItem* ItemToPurchase);
@@ -31,11 +37,24 @@ private:
 	UPROPERTY()
 	UAbilitySystemComponent* OwnerAbilitySystemComponent;
 	
+	// 双端 map,保证handle与item一一对应
+	UPROPERTY()
+	TMap<FInventoryItemHandle, UInventoryItem*> InventoryMap;
+
 	
 	/*********************************************************/
 	/*                   Server                              */
 	/*********************************************************/
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Purchase(const UPA_ShopItem* ItemToPurchase);
+	
+	void GrantItem(const UPA_ShopItem* NewItem);
+
+	/*********************************************************/
+	/*                   Client                              */
+	/*********************************************************/
+private:
+	UFUNCTION(Client, Reliable)
+	void Client_ItemAdded(FInventoryItemHandle AssignedHandle, const UPA_ShopItem* Item);
 		
 };
